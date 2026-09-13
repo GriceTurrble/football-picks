@@ -17,6 +17,18 @@ export function GameListItem({
   // in-progress or final.
   const locked = game.status !== "pre" && !lockOverride;
 
+  // Once a game is final (and didn't tie), figure out who won so TeamBox can
+  // highlight it.
+  const winner: PickSelection | null =
+    game.status === "post" &&
+    game.homeScore !== null &&
+    game.awayScore !== null &&
+    game.homeScore !== game.awayScore
+      ? game.homeScore > game.awayScore
+        ? "home"
+        : "away"
+      : null;
+
   return (
     <li>
       <div className="flex items-stretch justify-between rounded-lg border p-2 border-black/8 dark:border-white/[.145]">
@@ -26,6 +38,7 @@ export function GameListItem({
           abbr={game.awayTeamAbbr}
           name={game.awayTeamName}
           selected={pick === "away"}
+          won={winner === "away"}
           disabled={locked}
           override={lockOverride}
         />
@@ -36,6 +49,7 @@ export function GameListItem({
           abbr={game.homeTeamAbbr}
           name={game.homeTeamName}
           selected={pick === "home"}
+          won={winner === "home"}
           disabled={locked}
           override={lockOverride}
         />

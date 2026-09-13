@@ -12,6 +12,7 @@ export function TeamBox({
   abbr,
   name,
   selected,
+  won = false,
   disabled = false,
   override = false,
   className = "",
@@ -21,6 +22,8 @@ export function TeamBox({
   abbr: string;
   name: string;
   selected: boolean;
+  /** This team won a completed game. */
+  won?: boolean;
   disabled?: boolean;
   override?: boolean;
   className?: string;
@@ -31,6 +34,17 @@ export function TeamBox({
     ? clearPick.bind(null, gameId, override)
     : pickWinner.bind(null, gameId, team, override);
 
+  // Once a game is final, the winner's box gets a highlight: green if it was
+  // the user's pick, orange if it wasn't (wrong pick or no pick at all).
+  // Otherwise fall back to the plain selected/hover styling.
+  const stateClasses = won
+    ? selected
+      ? "bg-green-100 ring-2 ring-green-600 dark:bg-green-900/40 dark:ring-green-500"
+      : "bg-orange-100 dark:bg-orange-900/30"
+    : selected
+      ? "bg-foreground/10 ring-2 ring-foreground"
+      : "hover:bg-black/5 dark:hover:bg-white/5";
+
   return (
     <form action={action} className={`flex w-1/3 shrink-0 ${className}`}>
       <button
@@ -38,9 +52,9 @@ export function TeamBox({
         disabled={disabled}
         aria-pressed={selected}
         aria-label={selected ? `Unselect ${name}` : `Pick ${name} to win`}
-        className={`flex w-full flex-1 flex-col items-center justify-center rounded-lg px-2 py-1.5 transition-colors ${
-          selected ? "bg-foreground/10 ring-2 ring-foreground" : "hover:bg-black/5 dark:hover:bg-white/5"
-        } ${disabled ? "cursor-not-allowed" : "cursor-pointer"}`}
+        className={`flex w-full flex-1 flex-col items-center justify-center rounded-lg px-2 py-1.5 transition-colors ${stateClasses} ${
+          disabled ? "cursor-not-allowed" : "cursor-pointer"
+        }`}
       >
         <Image src={teamLogoSrc(abbr)} alt={name} width={28} height={28} />
         <span className="w-full truncate text-center text-xs text-zinc-600 dark:text-zinc-400">

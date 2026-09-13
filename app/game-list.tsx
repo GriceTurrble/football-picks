@@ -26,7 +26,7 @@ export function GameList({
   const filtered = games.filter((game) => matchesTeam(game, search));
 
   return (
-    <ul className="flex flex-col gap-2">
+    <ul className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto">
       {filtered.map((game) => (
         <GameListItem
           key={game.id}

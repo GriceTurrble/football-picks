@@ -23,7 +23,13 @@ export function GameStatus({ game }: { game: Game }) {
       </div>
       <div className="flex flex-col gap-0.5 items-center text-center text-xs text-zinc-500 dark:text-white">
         {game.status !== "pre" && (
-          <div className="font-semibold">
+          <div className="flex items-center gap-1.5 font-semibold">
+            {game.status === "in" && (
+              <span className="relative flex h-2 w-2" aria-hidden="true">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-red-500" />
+              </span>
+            )}
             <StatusLabel game={game} />
           </div>
         )}

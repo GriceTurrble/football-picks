@@ -5,6 +5,7 @@ import { WeekSelect } from "@/app/week-select";
 import { LockOverride } from "@/app/lock-override";
 import { GameList } from "@/app/game-list";
 import { TeamFilterProvider, TeamFilterInput } from "@/app/team-filter";
+import { RefreshStatus } from "@/app/refresh-status";
 
 function firstParam(value: string | string[] | undefined): string | undefined {
   return Array.isArray(value) ? value[0] : value;
@@ -41,9 +42,14 @@ export default async function Home(props: PageProps<"/">) {
   const lockOverride = firstParam(searchParams.override) === "1";
 
   return (
-    <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-6 p-6">
-      <h1 className="text-2xl font-semibold">Football Picks</h1>
-      <p className="text-lg text-zinc-600 dark:text-zinc-400">{season} Season</p>
+    <main className="mx-auto flex w-full max-w-2xl min-h-0 flex-1 flex-col gap-2 overflow-hidden py-6">
+      <div className="flex items-start justify-between gap-2">
+        <div>
+          <h1 className="text-2xl font-semibold">Football Picks</h1>
+          <p className="text-lg text-zinc-600 dark:text-zinc-400">{season} Season</p>
+        </div>
+        <RefreshStatus />
+      </div>
 
       {seasons.length > 1 && (
         <nav className="flex flex-wrap gap-2 text-sm">
