@@ -1,7 +1,10 @@
 import Link from "next/link";
 import { listGames, listSeasons, listWeeks } from "@/lib/games";
+import { listPicks } from "@/lib/picks";
 import { WeekSelect } from "@/app/week-select";
-import { GameListItem } from "@/app/game-list-item";
+import { LockOverride } from "@/app/lock-override";
+import { GameList } from "@/app/game-list";
+import { TeamFilterProvider, TeamFilterInput } from "@/app/team-filter";
 
 function firstParam(value: string | string[] | undefined): string | undefined {
   return Array.isArray(value) ? value[0] : value;
@@ -34,6 +37,8 @@ export default async function Home(props: PageProps<"/">) {
   const week = weeks.includes(requestedWeek) ? requestedWeek : undefined;
 
   const games = listGames(season, week);
+  const picks = listPicks(games.map((game) => game.id));
+  const lockOverride = firstParam(searchParams.override) === "1";
 
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-6 p-6">
@@ -58,13 +63,17 @@ export default async function Home(props: PageProps<"/">) {
         </nav>
       )}
 
-      <WeekSelect season={season} weeks={weeks} week={week} />
+      {/* Keyed on week so the team filter clears when the week changes —
+          there's no server round trip to reset it otherwise. */}
+      <TeamFilterProvider key={week ?? "all"}>
+        <div className="flex items-center justify-between gap-2">
+          <WeekSelect season={season} weeks={weeks} week={week} />
+          <TeamFilterInput />
+          <LockOverride season={season} week={week} enabled={lockOverride} />
+        </div>
 
-      <ul className="flex flex-col gap-2">
-        {games.map((game) => (
-          <GameListItem key={game.id} game={game} />
-        ))}
-      </ul>
+        <GameList games={games} picks={picks} lockOverride={lockOverride} />
+      </TeamFilterProvider>
     </main>
   );
 }

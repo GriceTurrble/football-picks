@@ -1,28 +1,45 @@
-import Link from "next/link";
-import type { Game } from "@/lib/types";
-import { formatKickoff, statusLabel } from "@/lib/format";
+import type { Game, PickSelection } from "@/lib/types";
+import { TeamBox } from "@/app/team-box";
+import { GameStatus } from "@/app/game-status";
 
-export function GameListItem({ game }: { game: Game }) {
+export function GameListItem({
+  game,
+  pick,
+  lockOverride = false,
+}: {
+  game: Game;
+  pick?: PickSelection;
+  lockOverride?: boolean;
+}) {
+  // Picks lock once a game kicks off — there's no point (or fairness) in
+  // letting a pick change once the outcome is already in motion. The Lock
+  // Override toggle lifts this for any game that's already started,
+  // in-progress or final.
+  const locked = game.status !== "pre" && !lockOverride;
+
   return (
     <li>
-      <Link
-        href={`/games/${game.id}`}
-        className="flex items-center justify-between gap-4 rounded-lg border border-black/8 px-4 py-3 hover:bg-black/3 dark:border-white/[.145] dark:hover:bg-white/6"
-      >
-        <span className="flex flex-col">
-          <span className="font-medium">
-            {game.awayTeamName} @ {game.homeTeamName}
-          </span>
-          <span className="text-sm text-zinc-600 dark:text-zinc-400">
-            Week {game.week} &middot; {formatKickoff(game.kickoff)}
-          </span>
-        </span>
-        <span className="whitespace-nowrap text-sm text-zinc-600 dark:text-zinc-400">
-          {game.status === "post"
-            ? `${game.awayScore} - ${game.homeScore}`
-            : statusLabel(game)}
-        </span>
-      </Link>
+      <div className="flex items-stretch justify-between rounded-lg border p-2 border-black/8 dark:border-white/[.145]">
+        <TeamBox
+          gameId={game.id}
+          team="away"
+          abbr={game.awayTeamAbbr}
+          name={game.awayTeamName}
+          selected={pick === "away"}
+          disabled={locked}
+          override={lockOverride}
+        />
+        <GameStatus game={game} />
+        <TeamBox
+          gameId={game.id}
+          team="home"
+          abbr={game.homeTeamAbbr}
+          name={game.homeTeamName}
+          selected={pick === "home"}
+          disabled={locked}
+          override={lockOverride}
+        />
+      </div>
     </li>
   );
 }

@@ -33,6 +33,12 @@ export function getDb(): DatabaseSync {
     );
 
     CREATE INDEX IF NOT EXISTS idx_games_season_week ON games (season, week);
+
+    CREATE TABLE IF NOT EXISTS picks (
+      game_id TEXT PRIMARY KEY REFERENCES games (id),
+      team TEXT NOT NULL CHECK (team IN ('home', 'away')),
+      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
   `);
 
   return db;
