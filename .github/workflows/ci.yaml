@@ -36,6 +36,10 @@ jobs:
           runtime: node@26
           cache: true
       - run: pnpm install
+      # Next.js generates ambient globals (LayoutProps, PageProps, RouteContext)
+      # via next dev/build/typegen. `tsc` in the lint step below needs these
+      # to already exist since we don't run a full `next build` in CI.
+      - run: pnpm exec next typegen
       - uses: griceturrble/precommit-checks-action@62f15bdb493bd607c2496de1bcb87657354e22a5 # v3.1.1
         with:
           suggest_fixes: "true"
