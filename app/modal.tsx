@@ -47,7 +47,13 @@ export function Modal({
       }}
       // The browser centers an open <dialog> via its own UA-stylesheet
       // margin: auto, but Tailwind's preflight resets every element's
-      // margin to 0 - m-auto here just puts that centering back.
+      // margin to 0. mx-auto restores horizontal centering; my-8 gives it a
+      // fixed top/bottom margin instead (rather than auto, which would
+      // re-center it vertically) so a tall panel grows downward from a
+      // fixed offset instead of staying pinned to the vertical middle. The
+      // dialog's own UA-stylesheet overflow: auto (while in the top layer)
+      // still kicks in once that height plus the my-8 margins exceeds the
+      // viewport, so it scrolls internally rather than growing off-screen.
       //
       // The fade/scale-in on open needs `display` itself in the transition
       // (via transition-discrete, i.e. transition-behavior: allow-discrete)
@@ -56,7 +62,7 @@ export function Modal({
       // that previous frame's values (@starting-style). This also gives the
       // reverse (fade/scale-out on close) for free, holding `display: none`
       // until the transition finishes.
-      className={`m-auto w-full ${widthClassName} scale-95 rounded-lg border border-black/8 bg-background p-0 text-foreground opacity-0 transition-all duration-300 ease-in-out transition-discrete open:scale-100 open:opacity-100 starting:open:scale-95 starting:open:opacity-0 backdrop:bg-black/40 dark:border-white/[.145] dark:backdrop:bg-black/60`}
+      className={`mx-auto my-8 w-full ${widthClassName} scale-95 rounded-lg border border-black/8 bg-background p-0 text-foreground opacity-0 transition-all duration-300 ease-in-out transition-discrete open:scale-100 open:opacity-100 starting:open:scale-95 starting:open:opacity-0 backdrop:bg-black/40 dark:border-white/[.145] dark:backdrop:bg-black/60`}
     >
       <div className="flex flex-col gap-3 p-4">
         {title && <h2 className="text-lg font-semibold">{title}</h2>}

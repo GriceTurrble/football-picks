@@ -156,7 +156,7 @@ export function CompileButton({
           </div>
         )}
 
-        <pre className="max-h-80 overflow-y-auto whitespace-pre-wrap rounded-md border border-black/8 bg-black/3 p-3 font-mono text-sm dark:border-white/[.145] dark:bg-white/3">
+        <pre className="whitespace-pre-wrap rounded-md border border-black/8 bg-black/3 p-3 font-mono text-sm dark:border-white/[.145] dark:bg-white/3">
           {text || "No picks yet."}
         </pre>
       </Modal>

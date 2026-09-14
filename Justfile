@@ -35,3 +35,6 @@ typegen:
 # Run dev server
 up:
     pnpm dev
+
+
+alias dev := up
