@@ -5,14 +5,7 @@ import { useRouter } from "next/navigation";
 import { MdRefresh } from "react-icons/md";
 import { REFRESH_INTERVAL_MS } from "@/lib/constants";
 import { refreshNow } from "@/lib/refresh-actions";
-
-function formatRefreshedAt(iso: string): string {
-  return new Date(iso).toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
-    second: "2-digit",
-  });
-}
+import { formatRefreshedAt } from "@/lib/format";
 
 interface RefreshStatusProps {
   /**
