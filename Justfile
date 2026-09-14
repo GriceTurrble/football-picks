@@ -18,6 +18,18 @@ sync-commons:
 bootstrap:
     just sync-commons
     just bootstrap-commons
+    just sync
+    just typegen
+
+
+# Sync project dependencies
+sync:
+    pnpm install
+
+
+# Generated Next's ephemeral type stubs
+typegen:
+    pnpm exec next typegen
 
 
 # Run dev server
