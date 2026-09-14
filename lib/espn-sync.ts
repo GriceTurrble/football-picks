@@ -100,7 +100,7 @@ function upsertEvents(
 
 /**
  * Fetches every regular-season week for a season from ESPN and upserts it
- * into the local database. Safe to call repeatedly — kickoff time, status,
+ * into the local database. Safe to call repeatedly - kickoff time, status,
  * and scores are updated in place; everything else about an existing game
  * row is left alone. Returns the total number of games written.
  */

@@ -11,7 +11,7 @@ export function GameListItem({
   pick?: PickSelection;
   lockOverride?: boolean;
 }) {
-  // Picks lock once a game kicks off — there's no point (or fairness) in
+  // Picks lock once a game kicks off - there's no point (or fairness) in
   // letting a pick change once the outcome is already in motion. The Lock
   // Override toggle lifts this for any game that's already started,
   // in-progress or final.

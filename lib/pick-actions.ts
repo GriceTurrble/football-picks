@@ -36,7 +36,7 @@ export async function pickWinner(gameId: string, team: PickSelection, override: 
 }
 
 /**
- * Removes the pick for a game entirely — used when clicking the already-
+ * Removes the pick for a game entirely - used when clicking the already-
  * selected team, to unselect it. Same lock rules as `pickWinner` apply.
  */
 export async function clearPick(gameId: string, override: boolean) {

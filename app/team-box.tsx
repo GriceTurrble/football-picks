@@ -4,7 +4,7 @@ import { clearPick, pickWinner } from "@/lib/pick-actions";
 import type { PickSelection } from "@/lib/types";
 
 // Logo + team name, as a button for picking this team to win. Wrapped in its
-// own <form> so the pick works via a plain Server Action post — no client
+// own <form> so the pick works via a plain Server Action post - no client
 // component needed for the common case of "submit and re-render".
 export function TeamBox({
   gameId,
