@@ -35,7 +35,15 @@ interface RefreshStatusProps {
 export function RefreshStatus({ active }: RefreshStatusProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  const [lastRefreshed, setLastRefreshed] = useState<Date | null>(null);
+  // Lazy-initialized so SSR (no `window`) and the pre-mount client render
+  // both produce "Refreshing…", then the real, client-only mount time
+  // shows up as soon as the browser hydrates - see the suppressHydrationWarning
+  // below. Avoids stamping the time via a setState-on-mount effect, which
+  // the lint config here (React Compiler's set-state-in-effect rule) flags
+  // as an unnecessary extra render.
+  const [lastRefreshed, setLastRefreshed] = useState<Date | null>(() =>
+    typeof window === "undefined" ? null : new Date()
+  );
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const wasPending = useRef(false);
 
@@ -51,7 +59,6 @@ export function RefreshStatus({ active }: RefreshStatusProps) {
   }, [refresh, active]);
 
   useEffect(() => {
-    setLastRefreshed(new Date());
     scheduleAutoRefresh();
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
@@ -85,7 +92,9 @@ export function RefreshStatus({ active }: RefreshStatusProps) {
         <MdRefresh className={isPending ? "animate-spin" : undefined} />
         Refresh
       </button>
-      <span>{lastRefreshed ? `Last refreshed ${formatRefreshedAt(lastRefreshed)}` : "Refreshing…"}</span>
+      <span suppressHydrationWarning>
+        {lastRefreshed ? `Last refreshed ${formatRefreshedAt(lastRefreshed)}` : "Refreshing…"}
+      </span>
       <span>Auto-refreshes every 5 min while games are in progress.</span>
     </div>
   );
