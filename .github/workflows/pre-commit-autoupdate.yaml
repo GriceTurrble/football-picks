@@ -1,0 +1,32 @@
+## On a cron schedule or on demand, autoupdate the pre-commit config and create a draft PR with those changes.
+
+name: pre-commit autoupdate
+
+# NOTE: you must manually enable PR creation from GitHub Actions for this to work
+# In repo Settings, under Actions > General,
+# click "Allow GitHub Actions to create and approve pull requests".
+# See: https://github.com/griceturrble/precommit-autoupdate-action?tab=readme-ov-file#permissions
+
+on:
+  # To call the workflow on-demand
+  workflow_dispatch:
+  # To have it run automatically on a schedule:
+  schedule:
+    # Example: every Monday at 11AM UTC (~6AM US/Eastern)
+    - cron: "0 11 * * 1"
+
+jobs:
+  pre-commit-autoupdate:
+    permissions:
+      # The workflow must be able to write changes
+      # to `.pre-commit-config.yaml`:
+      contents: write
+      # It must also have permission to create PRs:
+      pull-requests: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: griceturrble/precommit-autoupdate-action@301af7e8305b5c2969f3604843e8e55dc7db0e26 # v4.0.3
+        with:
+          pr_title: "[Draft] pre-commit auto update"

@@ -20,22 +20,21 @@ repos:
       - id: fix-byte-order-marker
       - id: trailing-whitespace
 
-  # - repo: https://github.com/rhysd/actionlint
-  #   rev: "v1.7.12"
-  #   hooks:
-  #     - id: actionlint
-  #       exclude: \.github/workflows/pypi-release.ya?ml$
+  - repo: https://github.com/rhysd/actionlint
+    rev: "v1.7.12"
+    hooks:
+      - id: actionlint
 
-  # - repo: local
-  #   hooks:
-  #     # Requires GITHUB_TOKEN env var to avoid API rate limits
-  #     - id: pin-github-action
-  #       name: pin-github-action-shas
-  #       language: node
-  #       entry: pin-github-action
-  #       additional_dependencies: ["pin-github-action"]
-  #       files: ^\.github/workflows/
-  #       types_or: [yaml]
+  - repo: local
+    hooks:
+      # Requires GITHUB_TOKEN env var to avoid API rate limits
+      - id: pin-github-action
+        name: pin-github-action-shas
+        language: node
+        entry: pin-github-action
+        additional_dependencies: ["pin-github-action"]
+        files: ^\.github/workflows/
+        types_or: [yaml]
 
   - repo: https://github.com/hukkin/mdformat
     rev: 1.0.0
@@ -49,7 +48,7 @@ repos:
           - mdformat-ruff
 
   - repo: https://github.com/rbubley/mirrors-prettier
-    rev: "v3.9.5"
+    rev: "v3.9.6"
     hooks:
       - id: prettier
         # types_or: [json, yaml]
