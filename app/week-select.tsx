@@ -14,7 +14,7 @@ export function WeekSelect({ season, weeks, week }: WeekSelectProps) {
   return (
     <select
       aria-label="Filter by week"
-      className="rounded-md border border-black/8 bg-transparent px-3 py-1.5 text-sm dark:border-white/[.145]"
+      className="w-20 shrink-0 rounded-md border border-black/8 bg-transparent px-2 py-1.5 text-sm dark:border-white/[.145]"
       value={week ?? "all"}
       onChange={(event) => {
         const value = event.target.value;
@@ -23,10 +23,10 @@ export function WeekSelect({ season, weeks, week }: WeekSelectProps) {
         router.push(`/?${query}`);
       }}
     >
-      <option value="all">All weeks</option>
+      <option value="all">All</option>
       {weeks.map((w) => (
         <option key={w} value={w}>
-          Week {w}
+          W{w}
         </option>
       ))}
     </select>
