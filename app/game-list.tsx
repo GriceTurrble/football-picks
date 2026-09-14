@@ -94,11 +94,13 @@ export function GameList({
   games,
   byes,
   picks,
+  scoreTotals,
   lockOverride,
 }: {
   games: Game[];
   byes: ByeWeek[];
   picks: Record<string, PickSelection>;
+  scoreTotals: Record<string, number>;
   lockOverride: boolean;
 }) {
   const { search } = useTeamFilter();
@@ -164,6 +166,7 @@ export function GameList({
                     key={game.id}
                     game={game}
                     pick={picks[game.id]}
+                    scoreTotal={scoreTotals[game.id]}
                     lockOverride={lockOverride}
                   />
                 ))}

@@ -46,7 +46,7 @@ export function TeamBox({
       : "hover:bg-black/5 dark:hover:bg-white/5";
 
   return (
-    <form action={action} className={`flex w-1/3 shrink-0 ${className}`}>
+    <form action={action} className={`flex ${className}`}>
       <button
         type="submit"
         disabled={disabled}

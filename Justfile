@@ -18,3 +18,8 @@ sync-commons:
 bootstrap:
     just sync-commons
     just bootstrap-commons
+
+
+# Run dev server
+up:
+    pnpm dev

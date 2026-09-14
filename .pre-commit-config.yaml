@@ -53,3 +53,25 @@ repos:
     hooks:
       - id: prettier
         # types_or: [json, yaml]
+
+  # Project-specific: run through pnpm/the repo's own toolchain rather than
+  # pre-commit's node env, so it uses the exact ESLint/TS config and
+  # dependency versions already installed here. Both check the whole
+  # project rather than just staged files - tsc needs full program context
+  # to type-check at all, and this project's flat ESLint config is already
+  # set up to lint the whole repo when called with no path args.
+  - repo: local
+    hooks:
+      - id: eslint
+        name: eslint
+        language: system
+        entry: pnpm lint
+        pass_filenames: false
+        files: \.(js|jsx|mjs|cjs|ts|tsx|mts|cts)$
+
+      - id: tsc
+        name: tsc --noEmit
+        language: system
+        entry: pnpm exec tsc --noEmit
+        pass_filenames: false
+        files: \.(ts|tsx|mts|cts)$

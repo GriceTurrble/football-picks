@@ -7,19 +7,24 @@ import { GameListItem } from "@/app/game-list-item";
 import { LockOverride } from "@/app/lock-override";
 
 // Plain-text "Week N:" blocks, one per week present in `games`, each listing
-// the team names picked to win in kickoff order. Games without a pick are
-// left out entirely - the warning box in the modal is what surfaces those.
+// the team names picked to win in kickoff order, tagged with "(Score: X)"
+// wherever that game also has a score-total tiebreaker entry. Games without
+// a pick are left out entirely - the warning box in the modal is what
+// surfaces those.
 function buildCompiledText(
   games: Game[],
   picks: Record<string, PickSelection>,
+  scoreTotals: Record<string, number>,
 ): string {
   const weeks = new Map<number, string[]>();
   for (const game of games) {
     const pick = picks[game.id];
     if (!pick) continue;
     const winner = pick === "home" ? game.homeTeamName : game.awayTeamName;
+    const scoreTotal = scoreTotals[game.id];
+    const line = scoreTotal ? `${winner} (Score: ${scoreTotal})` : winner;
     const winners = weeks.get(game.week) ?? [];
-    winners.push(winner);
+    winners.push(line);
     weeks.set(game.week, winners);
   }
 
@@ -39,12 +44,14 @@ export function CompileButton({
   week,
   games,
   picks,
+  scoreTotals,
   lockOverride,
 }: {
   season: number;
   week: number | undefined;
   games: Game[];
   picks: Record<string, PickSelection>;
+  scoreTotals: Record<string, number>;
   lockOverride: boolean;
 }) {
   const [open, setOpen] = useState(false);
@@ -62,7 +69,7 @@ export function CompileButton({
   // with no separate client-side state to keep in sync.
   const missing = games.filter((game) => !picks[game.id]);
   const allPicked = missing.length === 0;
-  const text = buildCompiledText(games, picks);
+  const text = buildCompiledText(games, picks, scoreTotals);
 
   async function handleCopy() {
     try {
@@ -141,6 +148,7 @@ export function CompileButton({
                   key={game.id}
                   game={game}
                   pick={picks[game.id]}
+                  scoreTotal={scoreTotals[game.id]}
                   lockOverride={lockOverride}
                 />
               ))}

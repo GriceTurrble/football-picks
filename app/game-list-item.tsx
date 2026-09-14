@@ -1,14 +1,18 @@
 import type { Game, PickSelection } from "@/lib/types";
 import { TeamBox } from "@/app/team-box";
 import { GameStatus } from "@/app/game-status";
+import { ScoreTotal } from "@/app/score-total";
 
 export function GameListItem({
   game,
   pick,
+  scoreTotal,
   lockOverride = false,
 }: {
   game: Game;
   pick?: PickSelection;
+  /** The user's score-total tiebreaker entry for this game, if any. */
+  scoreTotal?: number;
   lockOverride?: boolean;
 }) {
   // Picks lock once a game kicks off - there's no point (or fairness) in
@@ -31,7 +35,11 @@ export function GameListItem({
 
   return (
     <li>
-      <div className="flex items-stretch justify-between rounded-lg border p-2 border-black/8 dark:border-white/[.145]">
+      {/* 5-column layout: each TeamBox is 1 column, GameStatus spans 2 down
+          the middle, and ScoreTotal is 1 column on the right. Grid items
+          stretch to fill their column's width by default, so none of the
+          children need their own width utility classes. */}
+      <div className="grid grid-cols-5 items-stretch gap-2 rounded-lg border p-2 border-black/8 dark:border-white/[.145]">
         <TeamBox
           gameId={game.id}
           team="away"
@@ -50,6 +58,12 @@ export function GameListItem({
           name={game.homeTeamName}
           selected={pick === "home"}
           won={winner === "home"}
+          disabled={locked}
+          override={lockOverride}
+        />
+        <ScoreTotal
+          game={game}
+          total={scoreTotal}
           disabled={locked}
           override={lockOverride}
         />
