@@ -1,18 +1,30 @@
 "use client";
 
-import type { Game, PickSelection } from "@/lib/types";
+import type { ByeWeek, Game, PickSelection } from "@/lib/types";
 import { GameListItem } from "@/app/game-list-item";
+import { ByeWeekItem } from "@/app/bye-week-item";
 import { useTeamFilter } from "@/app/team-filter";
 import { useGameStatusFilter } from "@/app/game-status-filter";
 import { useGameDayFilter, kickoffDay, WEEKDAY_NAMES } from "@/app/game-day-filter";
+
+function matchesNeedle(value: string, needle: string): boolean {
+  return value.toLowerCase().includes(needle);
+}
 
 function matchesTeam(game: Game, search: string): boolean {
   const needle = search.trim().toLowerCase();
   if (!needle) return true;
 
-  return [game.homeTeamName, game.homeTeamAbbr, game.awayTeamName, game.awayTeamAbbr].some(
-    (value) => value.toLowerCase().includes(needle)
+  return [game.homeTeamName, game.homeTeamId, game.awayTeamName, game.awayTeamId].some((value) =>
+    matchesNeedle(value, needle)
   );
+}
+
+function matchesBye(bye: ByeWeek, search: string): boolean {
+  const needle = search.trim().toLowerCase();
+  if (!needle) return true;
+
+  return [bye.teamName, bye.teamId].some((value) => matchesNeedle(value, needle));
 }
 
 interface DayGroup {
@@ -22,6 +34,7 @@ interface DayGroup {
 
 interface WeekGroup {
   week: number;
+  byes: ByeWeek[];
   days: DayGroup[];
 }
 
@@ -33,15 +46,26 @@ interface WeekGroup {
 // groups) also gives the sticky "Week N" header a containing block that
 // spans the whole week, so it stays pinned for exactly as long as that
 // week's games are on screen - see the sticky/stacking styling below.
-function groupGames(games: Game[]): WeekGroup[] {
-  const weeks: WeekGroup[] = [];
+//
+// Byes carry a week number but no kickoff/day, so they're merged in by week
+// only, ahead of that week's day groups. Filtering can thin one side out
+// from under the other, so a week can end up with byes and no games (or
+// vice versa) - see GameList below.
+function groupGames(games: Game[], byes: ByeWeek[]): WeekGroup[] {
+  const weeks = new Map<number, WeekGroup>();
+
+  function weekGroup(week: number): WeekGroup {
+    let group = weeks.get(week);
+    if (!group) {
+      group = { week, byes: [], days: [] };
+      weeks.set(week, group);
+    }
+    return group;
+  }
+
   for (const game of games) {
     const day = WEEKDAY_NAMES[kickoffDay(game.kickoff)];
-    let week = weeks[weeks.length - 1];
-    if (!week || week.week !== game.week) {
-      week = { week: game.week, days: [] };
-      weeks.push(week);
-    }
+    const week = weekGroup(game.week);
     const lastDay = week.days[week.days.length - 1];
     if (lastDay && lastDay.day === day) {
       lastDay.games.push(game);
@@ -49,15 +73,22 @@ function groupGames(games: Game[]): WeekGroup[] {
       week.days.push({ day, games: [game] });
     }
   }
-  return weeks;
+
+  for (const bye of byes) {
+    weekGroup(bye.week).byes.push(bye);
+  }
+
+  return [...weeks.values()].sort((a, b) => a.week - b.week);
 }
 
 export function GameList({
   games,
+  byes,
   picks,
   lockOverride,
 }: {
   games: Game[];
+  byes: ByeWeek[];
   picks: Record<string, PickSelection>;
   lockOverride: boolean;
 }) {
@@ -71,7 +102,19 @@ export function GameList({
       (dayFilter === "all" || kickoffDay(game.kickoff) === dayFilter)
   );
 
-  const weekGroups = groupGames(filtered);
+  // Byes have no day of their own to filter by, and no progress either -
+  // except "Bye" itself, the one status option that names them directly, so
+  // choosing it shows every bye regardless of the day filter. Otherwise they
+  // only show up for "All"/"All" - unless the team search matches one, in
+  // which case the match takes priority over both.
+  const searchActive = search.trim() !== "";
+  const filteredByes = byes.filter((bye) => {
+    if (!matchesBye(bye, search)) return false;
+    if (searchActive || statusFilter === "bye") return true;
+    return statusFilter === "all" && dayFilter === "all";
+  });
+
+  const weekGroups = groupGames(filtered, filteredByes);
   // A "Week N" header only adds information once more than one week is on
   // screen at a time (i.e. the Week selector is set to "All") - otherwise
   // it would just repeat the single week already named in the page header.
@@ -89,6 +132,13 @@ export function GameList({
             <h2 className="sticky top-0 z-10 bg-zinc-100 px-2 py-1 text-sm text-center font-semibold dark:bg-zinc-900">
               Week {weekGroup.week}
             </h2>
+          )}
+          {weekGroup.byes.length > 0 && (
+            <ul className="flex flex-col gap-2">
+              {weekGroup.byes.map((bye) => (
+                <ByeWeekItem key={bye.teamId} teamId={bye.teamId} teamName={bye.teamName} />
+              ))}
+            </ul>
           )}
           {weekGroup.days.map((dayGroup) => (
             <div key={dayGroup.day} className="flex flex-col gap-2">

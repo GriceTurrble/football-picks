@@ -1,9 +1,11 @@
 import { listGames, listSeasons, listWeeks } from "@/lib/games";
+import { listByeWeeks } from "@/lib/bye-weeks";
 import { listPicks } from "@/lib/picks";
 import { needsSync } from "@/lib/sync-window";
 import { SeasonSelect } from "@/app/season-select";
 import { WeekSelect } from "@/app/week-select";
 import { FilterDropdown } from "@/app/filter-dropdown";
+import { ActiveFilters } from "@/app/active-filters";
 import { GameStatusFilterProvider, GameStatusFilter } from "@/app/game-status-filter";
 import { GameDayFilterProvider, GameDayFilter } from "@/app/game-day-filter";
 import { LockOverride } from "@/app/lock-override";
@@ -43,6 +45,7 @@ export default async function Home(props: PageProps<"/">) {
   const week = weeks.includes(requestedWeek) ? requestedWeek : undefined;
 
   const games = listGames(season, week);
+  const byes = listByeWeeks(season, week);
   const picks = listPicks(games.map((game) => game.id));
   const lockOverride = firstParam(searchParams.override) === "1";
 
@@ -84,8 +87,9 @@ export default async function Home(props: PageProps<"/">) {
               <TeamFilterInput />
               <LockOverride season={season} week={week} enabled={lockOverride} />
             </div>
+            <ActiveFilters />
 
-            <GameList games={games} picks={picks} lockOverride={lockOverride} />
+            <GameList games={games} byes={byes} picks={picks} lockOverride={lockOverride} />
           </GameDayFilterProvider>
         </GameStatusFilterProvider>
       </TeamFilterProvider>

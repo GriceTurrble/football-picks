@@ -3,20 +3,25 @@
 // local database. Used by both the one-off seed script (scripts/seed.mts)
 // and the background refresh loop (lib/game-refresh.ts).
 import type { DatabaseSync } from "node:sqlite";
-import { getDb } from "@/lib/db";
+// Relative (not "@/lib/db") because this file is also imported by
+// scripts/seed.mts, which runs under plain `node` - no bundler to resolve
+// the "@/*" alias there.
+import { getDb } from "./db.ts";
 
 const SCOREBOARD_URL =
   "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard";
 const REGULAR_SEASON = 2;
 export const REGULAR_SEASON_WEEKS = 18;
 
+interface EspnTeamRef {
+  abbreviation: string;
+  displayName: string;
+}
+
 interface EspnCompetitor {
   homeAway: "home" | "away";
   score?: string;
-  team: {
-    abbreviation: string;
-    displayName: string;
-  };
+  team: EspnTeamRef;
 }
 
 interface EspnEvent {
@@ -33,17 +38,36 @@ interface EspnEvent {
 }
 
 interface EspnScoreboardResponse {
+  // ESPN names each week's byes directly, rather than requiring us to infer
+  // them from which teams have no event that week.
+  week?: { number: number; teamsOnBye?: EspnTeamRef[] };
   events?: EspnEvent[];
 }
 
-async function fetchWeek(season: number, week: number): Promise<EspnEvent[]> {
+interface WeekData {
+  events: EspnEvent[];
+  teamsOnBye: EspnTeamRef[];
+}
+
+async function fetchWeek(season: number, week: number): Promise<WeekData> {
   const url = `${SCOREBOARD_URL}?seasontype=${REGULAR_SEASON}&year=${season}&week=${week}`;
   const res = await fetch(url);
   if (!res.ok) {
     throw new Error(`ESPN request failed for week ${week}: ${res.status} ${res.statusText}`);
   }
   const data = (await res.json()) as EspnScoreboardResponse;
-  return data.events ?? [];
+  return { events: data.events ?? [], teamsOnBye: data.week?.teamsOnBye ?? [] };
+}
+
+// `games` and `bye_weeks` both reference `teams` by id (the ESPN
+// abbreviation), so every team mentioned anywhere in a week's response gets
+// upserted here first - keeping its display name current is a nice side
+// effect, not the point.
+function upsertTeam(db: DatabaseSync, team: EspnTeamRef): void {
+  db.prepare(
+    `INSERT INTO teams (id, name) VALUES (?, ?)
+     ON CONFLICT(id) DO UPDATE SET name = excluded.name`
+  ).run(team.abbreviation, team.displayName);
 }
 
 function upsertEvents(
@@ -55,9 +79,9 @@ function upsertEvents(
   const upsert = db.prepare(`
     INSERT INTO games (
       id, season, week, kickoff, status, status_detail, venue,
-      home_team_abbr, home_team_name, home_score,
-      away_team_abbr, away_team_name, away_score
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      home_team_id, home_score,
+      away_team_id, away_score
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ON CONFLICT(id) DO UPDATE SET
       kickoff = excluded.kickoff,
       status = excluded.status,
@@ -74,6 +98,9 @@ function upsertEvents(
     const away = competition?.competitors.find((c) => c.homeAway === "away");
     if (!competition || !home || !away) continue;
 
+    upsertTeam(db, home.team);
+    upsertTeam(db, away.team);
+
     const state = competition.status.type.state;
     const score = (raw: string | undefined) =>
       state === "pre" || raw === undefined ? null : Number(raw);
@@ -87,12 +114,31 @@ function upsertEvents(
       competition.status.type.detail,
       competition.venue?.fullName ?? null,
       home.team.abbreviation,
-      home.team.displayName,
       score(home.score),
       away.team.abbreviation,
-      away.team.displayName,
       score(away.score)
     );
+    count += 1;
+  }
+  return count;
+}
+
+function upsertByes(
+  db: DatabaseSync,
+  season: number,
+  week: number,
+  teamsOnBye: EspnTeamRef[]
+): number {
+  // No mutable columns beyond the (season, week, team) key itself, so an
+  // existing row just needs to survive re-runs, not be updated.
+  const upsert = db.prepare(
+    `INSERT OR IGNORE INTO bye_weeks (season, week, team_id) VALUES (?, ?, ?)`
+  );
+
+  let count = 0;
+  for (const team of teamsOnBye) {
+    upsertTeam(db, team);
+    upsert.run(season, week, team.abbreviation);
     count += 1;
   }
   return count;
@@ -106,14 +152,16 @@ function upsertEvents(
  */
 export async function syncSeason(
   season: number,
-  onWeek?: (week: number, eventCount: number) => void
+  onWeek?: (week: number, eventCount: number, byeCount: number) => void
 ): Promise<number> {
   const db = getDb();
   let total = 0;
   for (let week = 1; week <= REGULAR_SEASON_WEEKS; week++) {
-    const events = await fetchWeek(season, week);
-    total += upsertEvents(db, season, week, events);
-    onWeek?.(week, events.length);
+    const { events, teamsOnBye } = await fetchWeek(season, week);
+    const eventCount = upsertEvents(db, season, week, events);
+    const byeCount = upsertByes(db, season, week, teamsOnBye);
+    total += eventCount;
+    onWeek?.(week, eventCount, byeCount);
   }
   return total;
 }
