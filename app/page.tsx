@@ -4,6 +4,7 @@ import { listPicks } from "@/lib/picks";
 import { needsSync } from "@/lib/sync-window";
 import { WeekSelect } from "@/app/week-select";
 import { LockOverride } from "@/app/lock-override";
+import { CompileButton } from "@/app/compile-button";
 import { GameList } from "@/app/game-list";
 import { TeamFilterProvider, TeamFilterInput } from "@/app/team-filter";
 import { RefreshStatus } from "@/app/refresh-status";
@@ -80,6 +81,13 @@ export default async function Home(props: PageProps<"/">) {
           there's no server round trip to reset it otherwise. */}
       <TeamFilterProvider key={week ?? "all"}>
         <div className="flex items-center justify-between gap-2">
+          <CompileButton
+            season={season}
+            week={week}
+            games={games}
+            picks={picks}
+            lockOverride={lockOverride}
+          />
           <WeekSelect season={season} weeks={weeks} week={week} />
           <TeamFilterInput />
           <LockOverride season={season} week={week} enabled={lockOverride} />
