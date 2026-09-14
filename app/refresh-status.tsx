@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { MdRefresh } from "react-icons/md";
 import { REFRESH_INTERVAL_MS } from "@/lib/constants";
+import { refreshNow } from "@/lib/refresh-actions";
 
 function formatRefreshedAt(date: Date): string {
   return date.toLocaleTimeString("en-US", {
@@ -13,13 +14,25 @@ function formatRefreshedAt(date: Date): string {
   });
 }
 
-// Header control that keeps the page current: it triggers router.refresh()
-// (re-running the server component against the local DB, which
-// lib/game-refresh.ts keeps synced with ESPN on the same interval) every
-// REFRESH_INTERVAL_MS, and shows when that last happened. The button
-// refreshes immediately and restarts the interval, so a manual refresh
-// always buys a full 5 minutes before the next automatic one.
-export function RefreshStatus() {
+interface RefreshStatusProps {
+  /**
+   * Whether any game is in progress or close enough to kickoff that its
+   * status is worth re-checking (see lib/sync-window.ts). Only then does
+   * the automatic tick run - otherwise the local data can't be stale, so
+   * there's nothing to refresh toward.
+   */
+  active: boolean;
+}
+
+// Header control that keeps the page current: while `active`, it triggers
+// router.refresh() (re-running the server component against the local DB,
+// which lib/game-refresh.ts keeps synced with ESPN on the same interval)
+// every REFRESH_INTERVAL_MS, and shows when that last happened. The button
+// always works regardless of `active` - it calls the refreshNow server
+// action, which forces an ESPN sync before refreshing - and restarts the
+// interval, so a manual refresh always buys a full 5 minutes before the
+// next automatic one.
+export function RefreshStatus({ active }: RefreshStatusProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [lastRefreshed, setLastRefreshed] = useState<Date | null>(null);
@@ -34,8 +47,8 @@ export function RefreshStatus() {
 
   const scheduleAutoRefresh = useCallback(() => {
     if (intervalRef.current) clearInterval(intervalRef.current);
-    intervalRef.current = setInterval(refresh, REFRESH_INTERVAL_MS);
-  }, [refresh]);
+    intervalRef.current = active ? setInterval(refresh, REFRESH_INTERVAL_MS) : null;
+  }, [refresh, active]);
 
   useEffect(() => {
     setLastRefreshed(new Date());
@@ -46,7 +59,7 @@ export function RefreshStatus() {
   }, [scheduleAutoRefresh]);
 
   // Once a refresh's transition settles, the server component has
-  // re-rendered with fresh data — stamp the time it finished.
+  // re-rendered with fresh data - stamp the time it finished.
   useEffect(() => {
     if (wasPending.current && !isPending) {
       setLastRefreshed(new Date());
@@ -56,7 +69,9 @@ export function RefreshStatus() {
 
   function handleManualRefresh() {
     scheduleAutoRefresh();
-    refresh();
+    startTransition(async () => {
+      await refreshNow();
+    });
   }
 
   return (
@@ -71,7 +86,7 @@ export function RefreshStatus() {
         Refresh
       </button>
       <span>{lastRefreshed ? `Last refreshed ${formatRefreshedAt(lastRefreshed)}` : "Refreshing…"}</span>
-      <span>Auto-refreshes every 5 min</span>
+      <span>Auto-refreshes every 5 min while games are in progress.</span>
     </div>
   );
 }
