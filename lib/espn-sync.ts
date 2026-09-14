@@ -3,10 +3,11 @@
 // local database. Used by both the one-off seed script (scripts/seed.mts)
 // and the background refresh loop (lib/game-refresh.ts).
 import type { DatabaseSync } from "node:sqlite";
-// Relative (not "@/lib/db") because this file is also imported by
+// Relative (not "@/lib/...") because this file is also imported by
 // scripts/seed.mts, which runs under plain `node` - no bundler to resolve
 // the "@/*" alias there.
 import { getDb } from "./db.ts";
+import { markSynced } from "./sync-status.ts";
 
 const SCOREBOARD_URL =
   "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard";
@@ -149,6 +150,11 @@ function upsertByes(
  * into the local database. Safe to call repeatedly - kickoff time, status,
  * and scores are updated in place; everything else about an existing game
  * row is left alone. Returns the total number of games written.
+ *
+ * Every caller (the background refresh loop, a manual refresh, the one-off
+ * seed script) counts as "we just checked ESPN for this season", so the
+ * season_sync stamp lives here rather than being repeated at each call site
+ * - see lib/sync-status.ts.
  */
 export async function syncSeason(
   season: number,
@@ -163,5 +169,6 @@ export async function syncSeason(
     total += eventCount;
     onWeek?.(week, eventCount, byeCount);
   }
+  markSynced(season);
   return total;
 }

@@ -46,6 +46,14 @@ export function getDb(): DatabaseSync {
       team TEXT NOT NULL CHECK (team IN ('home', 'away')),
       updated_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
+
+    -- When lib/game-refresh.ts last actually finished checking a season
+    -- against ESPN (not merely when a client happened to notice) - see
+    -- lib/sync-status.ts.
+    CREATE TABLE IF NOT EXISTS season_sync (
+      season INTEGER PRIMARY KEY,
+      synced_at TEXT NOT NULL
+    );
   `);
 
   return db;
