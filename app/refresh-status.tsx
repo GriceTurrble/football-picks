@@ -36,7 +36,7 @@ export function RefreshStatus({ active }: RefreshStatusProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   // Lazy-initialized so SSR (no `window`) and the pre-mount client render
-  // both produce "Refreshing…", then the real, client-only mount time
+  // both produce "Refreshing...", then the real, client-only mount time
   // shows up as soon as the browser hydrates - see the suppressHydrationWarning
   // below. Avoids stamping the time via a setState-on-mount effect, which
   // the lint config here (React Compiler's set-state-in-effect rule) flags
@@ -93,7 +93,7 @@ export function RefreshStatus({ active }: RefreshStatusProps) {
         Refresh
       </button>
       <span suppressHydrationWarning>
-        {lastRefreshed ? `Last refreshed ${formatRefreshedAt(lastRefreshed)}` : "Refreshing…"}
+        {lastRefreshed ? `Last refreshed ${formatRefreshedAt(lastRefreshed)}` : "Refreshing..."}
       </span>
       <span>Auto-refreshes every 5 min while games are in progress.</span>
     </div>
