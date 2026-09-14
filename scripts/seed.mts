@@ -8,7 +8,7 @@
 // that's already loaded updates kickoff times, status, and scores in place.
 //
 // Once a season is seeded, the running server keeps it up to date on its
-// own — see lib/game-refresh.ts — so this script only needs to run once per
+// own - see lib/game-refresh.ts - so this script only needs to run once per
 // new season.
 import { syncSeason } from "../lib/espn-sync.ts";
 

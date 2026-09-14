@@ -2,9 +2,6 @@ import { DatabaseSync } from "node:sqlite";
 import { mkdirSync } from "node:fs";
 import path from "node:path";
 
-// This app only ever runs via `next dev` (or a one-off `node` script) on a
-// single machine, so a module-level singleton backed by a file on disk is
-// all the persistence we need — no server, no migrations tooling.
 const DB_DIR = path.join(process.cwd(), "data");
 const DB_PATH = path.join(DB_DIR, "football-picks.db");
 
