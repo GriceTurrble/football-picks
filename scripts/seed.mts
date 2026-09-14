@@ -16,8 +16,8 @@ async function main() {
   const season = Number(process.argv[2]) || new Date().getFullYear();
   console.log(`Seeding ${season} NFL regular season into data/football-picks.db ...`);
 
-  const total = await syncSeason(season, (week, eventCount) => {
-    console.log(`  week ${week}: ${eventCount} games`);
+  const total = await syncSeason(season, (week, eventCount, byeCount) => {
+    console.log(`  week ${week}: ${eventCount} games${byeCount ? `, ${byeCount} on bye` : ""}`);
   });
 
   console.log(`Done. Seeded/updated ${total} games for the ${season} season.`);

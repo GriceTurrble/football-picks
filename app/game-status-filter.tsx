@@ -3,7 +3,7 @@
 import { createContext, useContext, useState } from "react";
 import type { GameStatus } from "@/lib/types";
 
-export type StatusFilterValue = GameStatus | "all";
+export type StatusFilterValue = GameStatus | "all" | "bye";
 
 interface GameStatusFilterContextValue {
   statusFilter: StatusFilterValue;
@@ -38,6 +38,7 @@ const OPTIONS: { value: StatusFilterValue; label: string }[] = [
   { value: "pre", label: "Upcoming" },
   { value: "in", label: "In Progress" },
   { value: "post", label: "Final" },
+  { value: "bye", label: "Bye" },
 ];
 
 // Small segmented control - a row of labels wrapping visually-hidden radio

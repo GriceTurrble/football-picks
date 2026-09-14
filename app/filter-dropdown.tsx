@@ -49,7 +49,11 @@ export function FilterDropdown({ children }: { children: React.ReactNode }) {
       </button>
 
       {open && (
-        <div className="absolute top-full left-0 z-10 mt-1 flex flex-col gap-2 rounded-md border border-black/8 bg-background p-2 shadow-lg dark:border-white/[.145]">
+        // z-20, not z-10: the game list's sticky "Week N" headers use z-10
+        // too, and since they come later in the DOM (inside GameList, below
+        // this control row) they'd otherwise win the tie and paint over this
+        // popover once the list scrolls under it.
+        <div className="absolute top-full left-0 z-20 mt-1 flex flex-col gap-2 rounded-md border border-black/8 bg-background p-2 shadow-lg dark:border-white/[.145]">
           {children}
         </div>
       )}

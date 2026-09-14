@@ -22,6 +22,8 @@ async function refreshAllSeasons(force = false): Promise<void> {
   for (const season of listSeasons()) {
     if (!force && !needsSync(listGames(season), now)) continue;
     try {
+      // syncSeason stamps season_sync itself (see lib/sync-status.ts) - it
+      // counts as "checked ESPN" for any caller, not just this loop.
       const total = await syncSeason(season);
       console.log(`[game-refresh] synced ${total} games for ${season}`);
     } catch (err) {

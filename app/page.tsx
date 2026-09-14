@@ -1,9 +1,12 @@
 import { listGames, listSeasons, listWeeks } from "@/lib/games";
+import { listByeWeeks } from "@/lib/bye-weeks";
 import { listPicks } from "@/lib/picks";
 import { needsSync } from "@/lib/sync-window";
+import { getLastSyncedAt } from "@/lib/sync-status";
 import { SeasonSelect } from "@/app/season-select";
 import { WeekSelect } from "@/app/week-select";
 import { FilterDropdown } from "@/app/filter-dropdown";
+import { ActiveFilters } from "@/app/active-filters";
 import { GameStatusFilterProvider, GameStatusFilter } from "@/app/game-status-filter";
 import { GameDayFilterProvider, GameDayFilter } from "@/app/game-day-filter";
 import { LockOverride } from "@/app/lock-override";
@@ -43,6 +46,7 @@ export default async function Home(props: PageProps<"/">) {
   const week = weeks.includes(requestedWeek) ? requestedWeek : undefined;
 
   const games = listGames(season, week);
+  const byes = listByeWeeks(season, week);
   const picks = listPicks(games.map((game) => game.id));
   const lockOverride = firstParam(searchParams.override) === "1";
 
@@ -51,6 +55,7 @@ export default async function Home(props: PageProps<"/">) {
   // game in the season, not just the filtered week, so switching weeks
   // doesn't pause it.
   const syncActive = needsSync(week === undefined ? games : listGames(season));
+  const lastSyncedAt = getLastSyncedAt(season);
 
   return (
     <main className="mx-auto flex w-full max-w-2xl min-h-0 flex-1 flex-col gap-2 overflow-hidden py-6">
@@ -59,7 +64,7 @@ export default async function Home(props: PageProps<"/">) {
           <h1 className="text-2xl font-semibold">Football Picks</h1>
           <p className="text-lg text-zinc-600 dark:text-zinc-400">{season} Season</p>
         </div>
-        <RefreshStatus active={syncActive} />
+        <RefreshStatus active={syncActive} lastSyncedAt={lastSyncedAt} />
       </div>
 
       {/* Keyed on week so the team/status/day filters clear when the week
@@ -84,8 +89,9 @@ export default async function Home(props: PageProps<"/">) {
               <TeamFilterInput />
               <LockOverride season={season} week={week} enabled={lockOverride} />
             </div>
+            <ActiveFilters />
 
-            <GameList games={games} picks={picks} lockOverride={lockOverride} />
+            <GameList games={games} byes={byes} picks={picks} lockOverride={lockOverride} />
           </GameDayFilterProvider>
         </GameStatusFilterProvider>
       </TeamFilterProvider>

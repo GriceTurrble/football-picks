@@ -35,7 +35,7 @@ export function GameListItem({
         <TeamBox
           gameId={game.id}
           team="away"
-          abbr={game.awayTeamAbbr}
+          abbr={game.awayTeamId}
           name={game.awayTeamName}
           selected={pick === "away"}
           won={winner === "away"}
@@ -46,7 +46,7 @@ export function GameListItem({
         <TeamBox
           gameId={game.id}
           team="home"
-          abbr={game.homeTeamAbbr}
+          abbr={game.homeTeamId}
           name={game.homeTeamName}
           selected={pick === "home"}
           won={winner === "home"}

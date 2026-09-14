@@ -40,7 +40,7 @@ export function TeamFilterInput() {
         value={search}
         onChange={(event) => setSearch(event.target.value)}
         onFocus={(event) => event.target.select()}
-        placeholder="Filter by team…"
+        placeholder="Filter by team..."
         aria-label="Filter by team name"
         className="w-full rounded-md border border-black/8 bg-transparent px-3 py-1.5 pr-8 text-sm dark:border-white/[.145]"
       />
