@@ -1,8 +1,11 @@
-import Link from "next/link";
 import { listGames, listSeasons, listWeeks } from "@/lib/games";
 import { listPicks } from "@/lib/picks";
 import { needsSync } from "@/lib/sync-window";
+import { SeasonSelect } from "@/app/season-select";
 import { WeekSelect } from "@/app/week-select";
+import { FilterDropdown } from "@/app/filter-dropdown";
+import { GameStatusFilterProvider, GameStatusFilter } from "@/app/game-status-filter";
+import { GameDayFilterProvider, GameDayFilter } from "@/app/game-day-filter";
 import { LockOverride } from "@/app/lock-override";
 import { CompileButton } from "@/app/compile-button";
 import { GameList } from "@/app/game-list";
@@ -59,41 +62,32 @@ export default async function Home(props: PageProps<"/">) {
         <RefreshStatus active={syncActive} />
       </div>
 
-      {seasons.length > 1 && (
-        <nav className="flex flex-wrap gap-2 text-sm">
-          {seasons.map((s) => (
-            <Link
-              key={s}
-              href={`/?season=${s}`}
-              className={
-                s === season
-                  ? "rounded-full bg-foreground px-3 py-1 text-background"
-                  : "rounded-full border border-black/8 px-3 py-1 dark:border-white/[.145]"
-              }
-            >
-              {s}
-            </Link>
-          ))}
-        </nav>
-      )}
-
-      {/* Keyed on week so the team filter clears when the week changes -
-          there's no server round trip to reset it otherwise. */}
+      {/* Keyed on week so the team/status/day filters clear when the week
+          changes - there's no server round trip to reset them otherwise. */}
       <TeamFilterProvider key={week ?? "all"}>
-        <div className="flex items-center justify-between gap-2">
-          <CompileButton
-            season={season}
-            week={week}
-            games={games}
-            picks={picks}
-            lockOverride={lockOverride}
-          />
-          <WeekSelect season={season} weeks={weeks} week={week} />
-          <TeamFilterInput />
-          <LockOverride season={season} week={week} enabled={lockOverride} />
-        </div>
+        <GameStatusFilterProvider key={week ?? "all"}>
+          <GameDayFilterProvider key={week ?? "all"}>
+            <div className="flex items-center justify-between gap-2">
+              <CompileButton
+                season={season}
+                week={week}
+                games={games}
+                picks={picks}
+                lockOverride={lockOverride}
+              />
+              <SeasonSelect season={season} seasons={seasons} />
+              <WeekSelect season={season} weeks={weeks} week={week} />
+              <FilterDropdown>
+                <GameStatusFilter />
+                <GameDayFilter />
+              </FilterDropdown>
+              <TeamFilterInput />
+              <LockOverride season={season} week={week} enabled={lockOverride} />
+            </div>
 
-        <GameList games={games} picks={picks} lockOverride={lockOverride} />
+            <GameList games={games} picks={picks} lockOverride={lockOverride} />
+          </GameDayFilterProvider>
+        </GameStatusFilterProvider>
       </TeamFilterProvider>
     </main>
   );
