@@ -7,3 +7,8 @@ This version has breaking changes - APIs, conventions, and file structure may al
 This block is written and re-added by `next dev` - verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
 <!-- END:nextjs-agent-rules -->
+
+# Basic rules
+
+- This project uses `pnpm`, not `npm`, as a package manager and runner.
+- This is a side project, never going to "production". We don't need to check a production build when developing.
