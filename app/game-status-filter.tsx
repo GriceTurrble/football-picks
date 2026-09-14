@@ -10,13 +10,18 @@ interface GameStatusFilterContextValue {
   setStatusFilter: (value: StatusFilterValue) => void;
 }
 
-const GameStatusFilterContext = createContext<GameStatusFilterContextValue | null>(null);
+const GameStatusFilterContext =
+  createContext<GameStatusFilterContextValue | null>(null);
 
 // Holds the selected game-status filter so the radio row (in the Filters
 // dropdown) and the game list (below it) can share state without a round
 // trip to the server - same pattern as TeamFilterProvider. Remount this
 // provider (e.g. via `key={week}`) to reset it back to "all".
-export function GameStatusFilterProvider({ children }: { children: React.ReactNode }) {
+export function GameStatusFilterProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const [statusFilter, setStatusFilter] = useState<StatusFilterValue>("all");
   return (
     <GameStatusFilterContext.Provider value={{ statusFilter, setStatusFilter }}>
@@ -28,7 +33,9 @@ export function GameStatusFilterProvider({ children }: { children: React.ReactNo
 export function useGameStatusFilter(): GameStatusFilterContextValue {
   const context = useContext(GameStatusFilterContext);
   if (!context) {
-    throw new Error("useGameStatusFilter must be used within a GameStatusFilterProvider");
+    throw new Error(
+      "useGameStatusFilter must be used within a GameStatusFilterProvider",
+    );
   }
   return context;
 }
@@ -49,7 +56,9 @@ export function GameStatusFilter() {
 
   return (
     <div className="flex flex-col gap-1">
-      <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400">Game progress</span>
+      <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
+        Game progress
+      </span>
       <div
         role="radiogroup"
         aria-label="Filter by game status"

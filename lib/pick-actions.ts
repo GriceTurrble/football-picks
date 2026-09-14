@@ -18,7 +18,11 @@ function isPickSelection(value: unknown): value is PickSelection {
  * `override` is the "Lock override" toggle: it lifts the lock for a game
  * that has already kicked off, whether it's in progress or final.
  */
-export async function pickWinner(gameId: string, team: PickSelection, override: boolean) {
+export async function pickWinner(
+  gameId: string,
+  team: PickSelection,
+  override: boolean,
+) {
   if (!isPickSelection(team)) {
     throw new Error("Invalid team selection");
   }

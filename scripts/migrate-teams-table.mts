@@ -19,10 +19,14 @@ function main() {
   const db = new DatabaseSync(DB_PATH);
 
   const alreadyMigrated = db
-    .prepare("SELECT 1 FROM pragma_table_info('games') WHERE name = 'home_team_id'")
+    .prepare(
+      "SELECT 1 FROM pragma_table_info('games') WHERE name = 'home_team_id'",
+    )
     .get();
   if (alreadyMigrated) {
-    console.log("games table already uses home_team_id/away_team_id - nothing to do.");
+    console.log(
+      "games table already uses home_team_id/away_team_id - nothing to do.",
+    );
     return;
   }
 
@@ -44,13 +48,13 @@ function main() {
       .prepare(
         `SELECT DISTINCT home_team_abbr AS id, home_team_name AS name FROM games
          UNION
-         SELECT DISTINCT away_team_abbr, away_team_name FROM games`
+         SELECT DISTINCT away_team_abbr, away_team_name FROM games`,
       )
       .all() as { id: string; name: string }[];
 
     const upsertTeam = db.prepare(
       `INSERT INTO teams (id, name) VALUES (?, ?)
-       ON CONFLICT(id) DO UPDATE SET name = excluded.name`
+       ON CONFLICT(id) DO UPDATE SET name = excluded.name`,
     );
     for (const team of teams) upsertTeam.run(team.id, team.name);
 
@@ -86,7 +90,9 @@ function main() {
 
     db.exec("DROP TABLE games;");
     db.exec("ALTER TABLE games_new RENAME TO games;");
-    db.exec("CREATE INDEX IF NOT EXISTS idx_games_season_week ON games (season, week);");
+    db.exec(
+      "CREATE INDEX IF NOT EXISTS idx_games_season_week ON games (season, week);",
+    );
 
     db.exec(`
       CREATE TABLE IF NOT EXISTS bye_weeks (
@@ -98,7 +104,9 @@ function main() {
     `);
 
     db.exec("COMMIT");
-    console.log(`Migrated ${teams.length} teams; games now references them by id.`);
+    console.log(
+      `Migrated ${teams.length} teams; games now references them by id.`,
+    );
   } catch (err) {
     db.exec("ROLLBACK");
     throw err;

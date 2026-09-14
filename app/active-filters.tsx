@@ -1,6 +1,9 @@
 "use client";
 
-import { useGameStatusFilter, type StatusFilterValue } from "@/app/game-status-filter";
+import {
+  useGameStatusFilter,
+  type StatusFilterValue,
+} from "@/app/game-status-filter";
 import { useGameDayFilter, WEEKDAY_NAMES } from "@/app/game-day-filter";
 
 const STATUS_LABELS: Record<Exclude<StatusFilterValue, "all">, string> = {
@@ -22,7 +25,12 @@ export function ActiveFilters() {
   // `type` mirrors the label each filter uses inside the dropdown itself
   // ("Game progress", "Game day"), so the chip reads as a continuation of
   // the same control rather than a re-description of it.
-  const chips: { key: string; type: string; label: string; onClear: () => void }[] = [];
+  const chips: {
+    key: string;
+    type: string;
+    label: string;
+    onClear: () => void;
+  }[] = [];
   if (statusFilter !== "all") {
     chips.push({
       key: "status",

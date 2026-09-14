@@ -51,7 +51,9 @@ export function RefreshStatus({ active, lastSyncedAt }: RefreshStatusProps) {
 
   const scheduleAutoRefresh = useCallback(() => {
     if (intervalRef.current) clearInterval(intervalRef.current);
-    intervalRef.current = active ? setInterval(refresh, REFRESH_INTERVAL_MS) : null;
+    intervalRef.current = active
+      ? setInterval(refresh, REFRESH_INTERVAL_MS)
+      : null;
   }, [refresh, active]);
 
   useEffect(() => {
@@ -86,7 +88,10 @@ export function RefreshStatus({ active, lastSyncedAt }: RefreshStatusProps) {
             ? `Last refreshed ${formatRefreshedAt(lastSyncedAt)}`
             : "Not yet refreshed"}
       </span>
-      <span>Auto-refreshes from ESPN Scoreboard API every 5 min while games in progress.</span>
+      <span>
+        Auto-refreshes from ESPN Scoreboard API every 5 min while games in
+        progress.
+      </span>
     </div>
   );
 }

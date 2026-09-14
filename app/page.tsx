@@ -7,7 +7,10 @@ import { SeasonSelect } from "@/app/season-select";
 import { WeekSelect } from "@/app/week-select";
 import { FilterDropdown } from "@/app/filter-dropdown";
 import { ActiveFilters } from "@/app/active-filters";
-import { GameStatusFilterProvider, GameStatusFilter } from "@/app/game-status-filter";
+import {
+  GameStatusFilterProvider,
+  GameStatusFilter,
+} from "@/app/game-status-filter";
 import { GameDayFilterProvider, GameDayFilter } from "@/app/game-day-filter";
 import { LockOverride } from "@/app/lock-override";
 import { CompileButton } from "@/app/compile-button";
@@ -39,7 +42,9 @@ export default async function Home(props: PageProps<"/">) {
   }
 
   const requestedSeason = Number(firstParam(searchParams.season));
-  const season = seasons.includes(requestedSeason) ? requestedSeason : seasons[0];
+  const season = seasons.includes(requestedSeason)
+    ? requestedSeason
+    : seasons[0];
 
   const weeks = listWeeks(season);
   const requestedWeek = Number(firstParam(searchParams.week));
@@ -62,7 +67,9 @@ export default async function Home(props: PageProps<"/">) {
       <div className="flex items-start justify-between gap-2">
         <div>
           <h1 className="text-2xl font-semibold">Football Picks</h1>
-          <p className="text-lg text-zinc-600 dark:text-zinc-400">{season} Season</p>
+          <p className="text-lg text-zinc-600 dark:text-zinc-400">
+            {season} Season
+          </p>
         </div>
         <RefreshStatus active={syncActive} lastSyncedAt={lastSyncedAt} />
       </div>
@@ -87,11 +94,20 @@ export default async function Home(props: PageProps<"/">) {
                 <GameDayFilter />
               </FilterDropdown>
               <TeamFilterInput />
-              <LockOverride season={season} week={week} enabled={lockOverride} />
+              <LockOverride
+                season={season}
+                week={week}
+                enabled={lockOverride}
+              />
             </div>
             <ActiveFilters />
 
-            <GameList games={games} byes={byes} picks={picks} lockOverride={lockOverride} />
+            <GameList
+              games={games}
+              byes={byes}
+              picks={picks}
+              lockOverride={lockOverride}
+            />
           </GameDayFilterProvider>
         </GameStatusFilterProvider>
       </TeamFilterProvider>

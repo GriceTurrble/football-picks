@@ -9,7 +9,10 @@ import { LockOverride } from "@/app/lock-override";
 // Plain-text "Week N:" blocks, one per week present in `games`, each listing
 // the team names picked to win in kickoff order. Games without a pick are
 // left out entirely - the warning box in the modal is what surfaces those.
-function buildCompiledText(games: Game[], picks: Record<string, PickSelection>): string {
+function buildCompiledText(
+  games: Game[],
+  picks: Record<string, PickSelection>,
+): string {
   const weeks = new Map<number, string[]>();
   for (const game of games) {
     const pick = picks[game.id];
@@ -118,14 +121,18 @@ export function CompileButton({
           <div className="rounded-md border border-amber-500/40 bg-amber-50 p-3 text-sm text-amber-900 dark:bg-amber-500/10 dark:text-amber-300">
             <div className="flex items-start justify-between gap-2">
               <p className="font-medium">
-                Missing {missing.length} pick{missing.length === 1 ? "" : "s"} - pick a winner
-                below:
+                Missing {missing.length} pick{missing.length === 1 ? "" : "s"} -
+                pick a winner below:
               </p>
               {/* Same control, same URL-backed state as the page's Lock
                   override toggle - flipping it here updates there too, and
                   vice versa. */}
               <div className="shrink-0">
-                <LockOverride season={season} week={week} enabled={lockOverride} />
+                <LockOverride
+                  season={season}
+                  week={week}
+                  enabled={lockOverride}
+                />
               </div>
             </div>
             <ul className="mt-2 flex flex-col gap-2">

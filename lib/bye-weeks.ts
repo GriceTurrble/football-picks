@@ -20,26 +20,24 @@ function rowToByeWeek(row: ByeWeekRow): ByeWeek {
 /** Teams with no game in a season, optionally narrowed to a single week. */
 export function listByeWeeks(season: number, week?: number): ByeWeek[] {
   const db = getDb();
-  const rows = (
-    week === undefined
-      ? db
-          .prepare(
-            `SELECT bye_weeks.season, bye_weeks.week, bye_weeks.team_id, teams.name AS team_name
+  const rows = (week === undefined
+    ? db
+        .prepare(
+          `SELECT bye_weeks.season, bye_weeks.week, bye_weeks.team_id, teams.name AS team_name
              FROM bye_weeks
              JOIN teams ON teams.id = bye_weeks.team_id
              WHERE bye_weeks.season = ?
-             ORDER BY bye_weeks.week ASC, teams.name ASC`
-          )
-          .all(season)
-      : db
-          .prepare(
-            `SELECT bye_weeks.season, bye_weeks.week, bye_weeks.team_id, teams.name AS team_name
+             ORDER BY bye_weeks.week ASC, teams.name ASC`,
+        )
+        .all(season)
+    : db
+        .prepare(
+          `SELECT bye_weeks.season, bye_weeks.week, bye_weeks.team_id, teams.name AS team_name
              FROM bye_weeks
              JOIN teams ON teams.id = bye_weeks.team_id
              WHERE bye_weeks.season = ? AND bye_weeks.week = ?
-             ORDER BY teams.name ASC`
-          )
-          .all(season, week)
-  ) as unknown as ByeWeekRow[];
+             ORDER BY teams.name ASC`,
+        )
+        .all(season, week)) as unknown as ByeWeekRow[];
   return rows.map(rowToByeWeek);
 }

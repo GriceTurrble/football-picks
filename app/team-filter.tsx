@@ -13,7 +13,11 @@ const TeamFilterContext = createContext<TeamFilterContextValue | null>(null);
 // game list (below it) can share state without a round trip to the server.
 // Remount this provider (e.g. via `key={week}`) to reset the filter, since
 // there's otherwise no single owner of both pieces to clear it from.
-export function TeamFilterProvider({ children }: { children: React.ReactNode }) {
+export function TeamFilterProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const [search, setSearch] = useState("");
   return (
     <TeamFilterContext.Provider value={{ search, setSearch }}>

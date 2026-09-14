@@ -12,7 +12,9 @@ export function listPicks(gameIds: string[]): Record<string, PickSelection> {
 
   const placeholders = gameIds.map(() => "?").join(", ");
   const rows = getDb()
-    .prepare(`SELECT game_id, team FROM picks WHERE game_id IN (${placeholders})`)
+    .prepare(
+      `SELECT game_id, team FROM picks WHERE game_id IN (${placeholders})`,
+    )
     .all(...gameIds) as unknown as PickRow[];
 
   return Object.fromEntries(rows.map((row) => [row.game_id, row.team]));
@@ -23,7 +25,7 @@ export function setPick(gameId: string, team: PickSelection): void {
   getDb()
     .prepare(
       `INSERT INTO picks (game_id, team) VALUES (?, ?)
-       ON CONFLICT (game_id) DO UPDATE SET team = excluded.team, updated_at = datetime('now')`
+       ON CONFLICT (game_id) DO UPDATE SET team = excluded.team, updated_at = datetime('now')`,
     )
     .run(gameId, team);
 }
