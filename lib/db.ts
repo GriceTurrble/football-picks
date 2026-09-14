@@ -41,9 +41,12 @@ export function getDb(): DatabaseSync {
       PRIMARY KEY (season, week, team_id)
     );
 
+    -- team is nullable: a row can hold a score-total tiebreaker entry (see
+    -- migratePicksTable below) with no winner pick yet, or vice versa.
     CREATE TABLE IF NOT EXISTS picks (
       game_id TEXT PRIMARY KEY REFERENCES games (id),
-      team TEXT NOT NULL CHECK (team IN ('home', 'away')),
+      team TEXT CHECK (team IN ('home', 'away')),
+      score_total INTEGER,
       updated_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
 
@@ -56,5 +59,44 @@ export function getDb(): DatabaseSync {
     );
   `);
 
+  migratePicksTable(db);
+
   return db;
+}
+
+// `picks` originally had `team TEXT NOT NULL` and no `score_total` column.
+// `CREATE TABLE IF NOT EXISTS` above no-ops against an existing table, so a
+// database created before the score-total tiebreaker feature needs its
+// `picks` table rebuilt to drop the NOT NULL constraint and add the column.
+// No-ops once that's done - the CREATE TABLE above already gets it right
+// for a fresh database, so this never has anything to do there.
+function migratePicksTable(db: DatabaseSync): void {
+  const hasScoreTotal = db
+    .prepare(
+      "SELECT 1 FROM pragma_table_info('picks') WHERE name = 'score_total'",
+    )
+    .get();
+  if (hasScoreTotal) return;
+
+  db.exec("BEGIN");
+  try {
+    db.exec(`
+      CREATE TABLE picks_new (
+        game_id TEXT PRIMARY KEY REFERENCES games (id),
+        team TEXT CHECK (team IN ('home', 'away')),
+        score_total INTEGER,
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+
+      INSERT INTO picks_new (game_id, team, updated_at)
+      SELECT game_id, team, updated_at FROM picks;
+
+      DROP TABLE picks;
+      ALTER TABLE picks_new RENAME TO picks;
+    `);
+    db.exec("COMMIT");
+  } catch (err) {
+    db.exec("ROLLBACK");
+    throw err;
+  }
 }

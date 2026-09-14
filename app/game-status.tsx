@@ -9,7 +9,7 @@ export function GameStatus({ game }: { game: Game }) {
   const showScore = game.status !== "pre";
 
   return (
-    <div className="flex w-40 shrink-0 flex-col items-center gap-0.5">
+    <div className="col-span-2 flex flex-col items-center gap-0.5">
       <div className="flex items-center gap-2 font-mono font-bold text-lg">
         {showScore ? (
           <>

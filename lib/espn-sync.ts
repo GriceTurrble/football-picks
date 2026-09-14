@@ -54,7 +54,9 @@ async function fetchWeek(season: number, week: number): Promise<WeekData> {
   const url = `${SCOREBOARD_URL}?seasontype=${REGULAR_SEASON}&year=${season}&week=${week}`;
   const res = await fetch(url);
   if (!res.ok) {
-    throw new Error(`ESPN request failed for week ${week}: ${res.status} ${res.statusText}`);
+    throw new Error(
+      `ESPN request failed for week ${week}: ${res.status} ${res.statusText}`,
+    );
   }
   const data = (await res.json()) as EspnScoreboardResponse;
   return { events: data.events ?? [], teamsOnBye: data.week?.teamsOnBye ?? [] };
@@ -67,7 +69,7 @@ async function fetchWeek(season: number, week: number): Promise<WeekData> {
 function upsertTeam(db: DatabaseSync, team: EspnTeamRef): void {
   db.prepare(
     `INSERT INTO teams (id, name) VALUES (?, ?)
-     ON CONFLICT(id) DO UPDATE SET name = excluded.name`
+     ON CONFLICT(id) DO UPDATE SET name = excluded.name`,
   ).run(team.abbreviation, team.displayName);
 }
 
@@ -75,7 +77,7 @@ function upsertEvents(
   db: DatabaseSync,
   season: number,
   week: number,
-  events: EspnEvent[]
+  events: EspnEvent[],
 ): number {
   const upsert = db.prepare(`
     INSERT INTO games (
@@ -117,7 +119,7 @@ function upsertEvents(
       home.team.abbreviation,
       score(home.score),
       away.team.abbreviation,
-      score(away.score)
+      score(away.score),
     );
     count += 1;
   }
@@ -128,12 +130,12 @@ function upsertByes(
   db: DatabaseSync,
   season: number,
   week: number,
-  teamsOnBye: EspnTeamRef[]
+  teamsOnBye: EspnTeamRef[],
 ): number {
   // No mutable columns beyond the (season, week, team) key itself, so an
   // existing row just needs to survive re-runs, not be updated.
   const upsert = db.prepare(
-    `INSERT OR IGNORE INTO bye_weeks (season, week, team_id) VALUES (?, ?, ?)`
+    `INSERT OR IGNORE INTO bye_weeks (season, week, team_id) VALUES (?, ?, ?)`,
   );
 
   let count = 0;
@@ -158,7 +160,7 @@ function upsertByes(
  */
 export async function syncSeason(
   season: number,
-  onWeek?: (week: number, eventCount: number, byeCount: number) => void
+  onWeek?: (week: number, eventCount: number, byeCount: number) => void,
 ): Promise<number> {
   const db = getDb();
   let total = 0;

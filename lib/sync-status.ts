@@ -11,11 +11,14 @@ import { getDb } from "./db.ts";
  * settling, etc.), which is all a client-side timestamp could ever really
  * mean.
  */
-export function markSynced(season: number, at: string = new Date().toISOString()): void {
+export function markSynced(
+  season: number,
+  at: string = new Date().toISOString(),
+): void {
   getDb()
     .prepare(
       `INSERT INTO season_sync (season, synced_at) VALUES (?, ?)
-       ON CONFLICT(season) DO UPDATE SET synced_at = excluded.synced_at`
+       ON CONFLICT(season) DO UPDATE SET synced_at = excluded.synced_at`,
     )
     .run(season, at);
 }

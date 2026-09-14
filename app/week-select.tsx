@@ -19,7 +19,9 @@ export function WeekSelect({ season, weeks, week }: WeekSelectProps) {
       onChange={(event) => {
         const value = event.target.value;
         const query =
-          value === "all" ? `season=${season}` : `season=${season}&week=${value}`;
+          value === "all"
+            ? `season=${season}`
+            : `season=${season}&week=${value}`;
         router.push(`/?${query}`);
       }}
     >

@@ -61,7 +61,9 @@ export function listSeasons(): number[] {
 /** Week numbers present for a season, in order. */
 export function listWeeks(season: number): number[] {
   const rows = getDb()
-    .prepare("SELECT DISTINCT week FROM games WHERE season = ? ORDER BY week ASC")
+    .prepare(
+      "SELECT DISTINCT week FROM games WHERE season = ? ORDER BY week ASC",
+    )
     .all(season) as { week: number }[];
   return rows.map((r) => r.week);
 }
@@ -69,23 +71,21 @@ export function listWeeks(season: number): number[] {
 /** Games for a season, optionally narrowed to a single week. */
 export function listGames(season: number, week?: number): Game[] {
   const db = getDb();
-  const rows = (
-    week === undefined
-      ? db
-          .prepare(
-            `SELECT ${GAME_COLUMNS} ${GAME_JOIN}
+  const rows = (week === undefined
+    ? db
+        .prepare(
+          `SELECT ${GAME_COLUMNS} ${GAME_JOIN}
              WHERE games.season = ?
-             ORDER BY games.week ASC, games.kickoff ASC`
-          )
-          .all(season)
-      : db
-          .prepare(
-            `SELECT ${GAME_COLUMNS} ${GAME_JOIN}
+             ORDER BY games.week ASC, games.kickoff ASC`,
+        )
+        .all(season)
+    : db
+        .prepare(
+          `SELECT ${GAME_COLUMNS} ${GAME_JOIN}
              WHERE games.season = ? AND games.week = ?
-             ORDER BY games.kickoff ASC`
-          )
-          .all(season, week)
-  ) as unknown as GameRow[];
+             ORDER BY games.kickoff ASC`,
+        )
+        .all(season, week)) as unknown as GameRow[];
   return rows.map(rowToGame);
 }
 

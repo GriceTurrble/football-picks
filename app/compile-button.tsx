@@ -7,16 +7,24 @@ import { GameListItem } from "@/app/game-list-item";
 import { LockOverride } from "@/app/lock-override";
 
 // Plain-text "Week N:" blocks, one per week present in `games`, each listing
-// the team names picked to win in kickoff order. Games without a pick are
-// left out entirely - the warning box in the modal is what surfaces those.
-function buildCompiledText(games: Game[], picks: Record<string, PickSelection>): string {
+// the team names picked to win in kickoff order, tagged with "(Score: X)"
+// wherever that game also has a score-total tiebreaker entry. Games without
+// a pick are left out entirely - the warning box in the modal is what
+// surfaces those.
+function buildCompiledText(
+  games: Game[],
+  picks: Record<string, PickSelection>,
+  scoreTotals: Record<string, number>,
+): string {
   const weeks = new Map<number, string[]>();
   for (const game of games) {
     const pick = picks[game.id];
     if (!pick) continue;
     const winner = pick === "home" ? game.homeTeamName : game.awayTeamName;
+    const scoreTotal = scoreTotals[game.id];
+    const line = scoreTotal ? `${winner} (Score: ${scoreTotal})` : winner;
     const winners = weeks.get(game.week) ?? [];
-    winners.push(winner);
+    winners.push(line);
     weeks.set(game.week, winners);
   }
 
@@ -36,12 +44,14 @@ export function CompileButton({
   week,
   games,
   picks,
+  scoreTotals,
   lockOverride,
 }: {
   season: number;
   week: number | undefined;
   games: Game[];
   picks: Record<string, PickSelection>;
+  scoreTotals: Record<string, number>;
   lockOverride: boolean;
 }) {
   const [open, setOpen] = useState(false);
@@ -59,7 +69,7 @@ export function CompileButton({
   // with no separate client-side state to keep in sync.
   const missing = games.filter((game) => !picks[game.id]);
   const allPicked = missing.length === 0;
-  const text = buildCompiledText(games, picks);
+  const text = buildCompiledText(games, picks, scoreTotals);
 
   async function handleCopy() {
     try {
@@ -118,14 +128,18 @@ export function CompileButton({
           <div className="rounded-md border border-amber-500/40 bg-amber-50 p-3 text-sm text-amber-900 dark:bg-amber-500/10 dark:text-amber-300">
             <div className="flex items-start justify-between gap-2">
               <p className="font-medium">
-                Missing {missing.length} pick{missing.length === 1 ? "" : "s"} - pick a winner
-                below:
+                Missing {missing.length} pick{missing.length === 1 ? "" : "s"} -
+                pick a winner below:
               </p>
               {/* Same control, same URL-backed state as the page's Lock
                   override toggle - flipping it here updates there too, and
                   vice versa. */}
               <div className="shrink-0">
-                <LockOverride season={season} week={week} enabled={lockOverride} />
+                <LockOverride
+                  season={season}
+                  week={week}
+                  enabled={lockOverride}
+                />
               </div>
             </div>
             <ul className="mt-2 flex flex-col gap-2">
@@ -134,6 +148,7 @@ export function CompileButton({
                   key={game.id}
                   game={game}
                   pick={picks[game.id]}
+                  scoreTotal={scoreTotals[game.id]}
                   lockOverride={lockOverride}
                 />
               ))}

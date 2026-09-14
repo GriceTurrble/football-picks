@@ -5,7 +5,11 @@ import { GameListItem } from "@/app/game-list-item";
 import { ByeWeekItem } from "@/app/bye-week-item";
 import { useTeamFilter } from "@/app/team-filter";
 import { useGameStatusFilter } from "@/app/game-status-filter";
-import { useGameDayFilter, kickoffDay, WEEKDAY_NAMES } from "@/app/game-day-filter";
+import {
+  useGameDayFilter,
+  kickoffDay,
+  WEEKDAY_NAMES,
+} from "@/app/game-day-filter";
 
 function matchesNeedle(value: string, needle: string): boolean {
   return value.toLowerCase().includes(needle);
@@ -15,16 +19,21 @@ function matchesTeam(game: Game, search: string): boolean {
   const needle = search.trim().toLowerCase();
   if (!needle) return true;
 
-  return [game.homeTeamName, game.homeTeamId, game.awayTeamName, game.awayTeamId].some((value) =>
-    matchesNeedle(value, needle)
-  );
+  return [
+    game.homeTeamName,
+    game.homeTeamId,
+    game.awayTeamName,
+    game.awayTeamId,
+  ].some((value) => matchesNeedle(value, needle));
 }
 
 function matchesBye(bye: ByeWeek, search: string): boolean {
   const needle = search.trim().toLowerCase();
   if (!needle) return true;
 
-  return [bye.teamName, bye.teamId].some((value) => matchesNeedle(value, needle));
+  return [bye.teamName, bye.teamId].some((value) =>
+    matchesNeedle(value, needle),
+  );
 }
 
 interface DayGroup {
@@ -85,11 +94,13 @@ export function GameList({
   games,
   byes,
   picks,
+  scoreTotals,
   lockOverride,
 }: {
   games: Game[];
   byes: ByeWeek[];
   picks: Record<string, PickSelection>;
+  scoreTotals: Record<string, number>;
   lockOverride: boolean;
 }) {
   const { search } = useTeamFilter();
@@ -99,7 +110,7 @@ export function GameList({
     (game) =>
       matchesTeam(game, search) &&
       (statusFilter === "all" || game.status === statusFilter) &&
-      (dayFilter === "all" || kickoffDay(game.kickoff) === dayFilter)
+      (dayFilter === "all" || kickoffDay(game.kickoff) === dayFilter),
   );
 
   // Byes have no day of their own to filter by, and no progress either -
@@ -136,7 +147,11 @@ export function GameList({
           {weekGroup.byes.length > 0 && (
             <ul className="flex flex-col gap-2">
               {weekGroup.byes.map((bye) => (
-                <ByeWeekItem key={bye.teamId} teamId={bye.teamId} teamName={bye.teamName} />
+                <ByeWeekItem
+                  key={bye.teamId}
+                  teamId={bye.teamId}
+                  teamName={bye.teamName}
+                />
               ))}
             </ul>
           )}
@@ -151,6 +166,7 @@ export function GameList({
                     key={game.id}
                     game={game}
                     pick={picks[game.id]}
+                    scoreTotal={scoreTotals[game.id]}
                     lockOverride={lockOverride}
                   />
                 ))}

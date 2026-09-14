@@ -10,13 +10,19 @@ interface GameDayFilterContextValue {
   setDayFilter: (value: DayFilterValue) => void;
 }
 
-const GameDayFilterContext = createContext<GameDayFilterContextValue | null>(null);
+const GameDayFilterContext = createContext<GameDayFilterContextValue | null>(
+  null,
+);
 
 // Holds the selected game-day filter so the radio row (in the Filters
 // dropdown) and the game list (below it) can share state without a round
 // trip to the server - same pattern as GameStatusFilterProvider. Remount this
 // provider (e.g. via `key={week}`) to reset it back to "all".
-export function GameDayFilterProvider({ children }: { children: React.ReactNode }) {
+export function GameDayFilterProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const [dayFilter, setDayFilter] = useState<DayFilterValue>("all");
   return (
     <GameDayFilterContext.Provider value={{ dayFilter, setDayFilter }}>
@@ -28,7 +34,9 @@ export function GameDayFilterProvider({ children }: { children: React.ReactNode 
 export function useGameDayFilter(): GameDayFilterContextValue {
   const context = useContext(GameDayFilterContext);
   if (!context) {
-    throw new Error("useGameDayFilter must be used within a GameDayFilterProvider");
+    throw new Error(
+      "useGameDayFilter must be used within a GameDayFilterProvider",
+    );
   }
   return context;
 }
@@ -51,7 +59,11 @@ export const WEEKDAY_NAMES = [
 
 const OPTIONS: { value: DayFilterValue; label: string; name: string }[] = [
   { value: "all", label: "All", name: "All days" },
-  ...WEEKDAY_NAMES.map((name, value) => ({ value, label: name.slice(0, 2), name })),
+  ...WEEKDAY_NAMES.map((name, value) => ({
+    value,
+    label: name.slice(0, 2),
+    name,
+  })),
 ];
 
 // Small segmented control - a row of labels wrapping visually-hidden radio
@@ -64,7 +76,9 @@ export function GameDayFilter() {
 
   return (
     <div className="flex flex-col gap-1">
-      <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400">Game day</span>
+      <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
+        Game day
+      </span>
       <div
         role="radiogroup"
         aria-label="Filter by game day"

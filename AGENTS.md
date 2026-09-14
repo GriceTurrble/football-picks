@@ -12,3 +12,6 @@ This block is written and re-added by `next dev` - verify at `node_modules/next/
 
 - This project uses `pnpm`, not `npm`, as a package manager and runner.
 - This is a side project, never going to "production". We don't need to check a production build when developing.
+- When linting, invoke `just lint`, which is part of my "common" Justfile recipes.
+  - If this fails due to a missing recipe, it may be because `common.just` is missing.
+  - If `common.just` is missing, run `just sync-commons` first to download it, then re-run the original command.

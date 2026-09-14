@@ -1,0 +1,76 @@
+default_install_hook_types:
+  - pre-commit
+  - post-checkout
+  - post-merge
+  - post-rewrite
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: "v6.0.0"
+    hooks:
+      - id: check-added-large-files
+      - id: check-case-conflict
+      - id: check-json
+        exclude: \.vscode
+      - id: check-merge-conflict
+      - id: check-toml
+      - id: check-yaml
+        exclude: mkdocs.ya?ml
+      - id: detect-private-key
+      - id: end-of-file-fixer
+      - id: fix-byte-order-marker
+      - id: trailing-whitespace
+
+  - repo: https://github.com/rhysd/actionlint
+    rev: "v1.7.12"
+    hooks:
+      - id: actionlint
+
+  - repo: local
+    hooks:
+      # Requires GITHUB_TOKEN env var to avoid API rate limits
+      - id: pin-github-action
+        name: pin-github-action-shas
+        language: node
+        entry: pin-github-action
+        additional_dependencies: ["pin-github-action"]
+        files: ^\.github/workflows/
+        types_or: [yaml]
+
+  - repo: https://github.com/hukkin/mdformat
+    rev: 1.0.0
+    hooks:
+      - id: mdformat
+        additional_dependencies:
+          - mdformat-footnote
+          - mdformat-frontmatter
+          - mdformat-gfm
+          - mdformat-gfm-alerts
+          - mdformat-ruff
+
+  - repo: https://github.com/rbubley/mirrors-prettier
+    rev: "v3.9.6"
+    hooks:
+      - id: prettier
+        # types_or: [json, yaml]
+
+  # Project-specific: run through pnpm/the repo's own toolchain rather than
+  # pre-commit's node env, so it uses the exact ESLint/TS config and
+  # dependency versions already installed here. Both check the whole
+  # project rather than just staged files - tsc needs full program context
+  # to type-check at all, and this project's flat ESLint config is already
+  # set up to lint the whole repo when called with no path args.
+  - repo: local
+    hooks:
+      - id: eslint
+        name: eslint
+        language: system
+        entry: pnpm lint
+        pass_filenames: false
+        files: \.(js|jsx|mjs|cjs|ts|tsx|mts|cts)$
+
+      - id: tsc
+        name: tsc --noEmit
+        language: system
+        entry: pnpm exec tsc --noEmit
+        pass_filenames: false
+        files: \.(ts|tsx|mts|cts)$

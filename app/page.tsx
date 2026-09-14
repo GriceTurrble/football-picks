@@ -1,13 +1,16 @@
 import { listGames, listSeasons, listWeeks } from "@/lib/games";
 import { listByeWeeks } from "@/lib/bye-weeks";
-import { listPicks } from "@/lib/picks";
+import { listPicks, listScoreTotals } from "@/lib/picks";
 import { needsSync } from "@/lib/sync-window";
 import { getLastSyncedAt } from "@/lib/sync-status";
 import { SeasonSelect } from "@/app/season-select";
 import { WeekSelect } from "@/app/week-select";
 import { FilterDropdown } from "@/app/filter-dropdown";
 import { ActiveFilters } from "@/app/active-filters";
-import { GameStatusFilterProvider, GameStatusFilter } from "@/app/game-status-filter";
+import {
+  GameStatusFilterProvider,
+  GameStatusFilter,
+} from "@/app/game-status-filter";
 import { GameDayFilterProvider, GameDayFilter } from "@/app/game-day-filter";
 import { LockOverride } from "@/app/lock-override";
 import { CompileButton } from "@/app/compile-button";
@@ -39,7 +42,9 @@ export default async function Home(props: PageProps<"/">) {
   }
 
   const requestedSeason = Number(firstParam(searchParams.season));
-  const season = seasons.includes(requestedSeason) ? requestedSeason : seasons[0];
+  const season = seasons.includes(requestedSeason)
+    ? requestedSeason
+    : seasons[0];
 
   const weeks = listWeeks(season);
   const requestedWeek = Number(firstParam(searchParams.week));
@@ -48,6 +53,7 @@ export default async function Home(props: PageProps<"/">) {
   const games = listGames(season, week);
   const byes = listByeWeeks(season, week);
   const picks = listPicks(games.map((game) => game.id));
+  const scoreTotals = listScoreTotals(games.map((game) => game.id));
   const lockOverride = firstParam(searchParams.override) === "1";
 
   // Auto-refresh only matters while ESPN's data for this season could
@@ -62,7 +68,9 @@ export default async function Home(props: PageProps<"/">) {
       <div className="flex items-start justify-between gap-2">
         <div>
           <h1 className="text-2xl font-semibold">Football Picks</h1>
-          <p className="text-lg text-zinc-600 dark:text-zinc-400">{season} Season</p>
+          <p className="text-lg text-zinc-600 dark:text-zinc-400">
+            {season} Season
+          </p>
         </div>
         <RefreshStatus active={syncActive} lastSyncedAt={lastSyncedAt} />
       </div>
@@ -78,6 +86,7 @@ export default async function Home(props: PageProps<"/">) {
                 week={week}
                 games={games}
                 picks={picks}
+                scoreTotals={scoreTotals}
                 lockOverride={lockOverride}
               />
               <SeasonSelect season={season} seasons={seasons} />
@@ -87,11 +96,21 @@ export default async function Home(props: PageProps<"/">) {
                 <GameDayFilter />
               </FilterDropdown>
               <TeamFilterInput />
-              <LockOverride season={season} week={week} enabled={lockOverride} />
+              <LockOverride
+                season={season}
+                week={week}
+                enabled={lockOverride}
+              />
             </div>
             <ActiveFilters />
 
-            <GameList games={games} byes={byes} picks={picks} lockOverride={lockOverride} />
+            <GameList
+              games={games}
+              byes={byes}
+              picks={picks}
+              scoreTotals={scoreTotals}
+              lockOverride={lockOverride}
+            />
           </GameDayFilterProvider>
         </GameStatusFilterProvider>
       </TeamFilterProvider>

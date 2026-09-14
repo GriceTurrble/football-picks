@@ -61,7 +61,11 @@ export function Modal({
       <div className="flex flex-col gap-3 p-4">
         {title && <h2 className="text-lg font-semibold">{title}</h2>}
         {children}
-        {footer && <div className="flex items-center justify-between gap-2">{footer}</div>}
+        {footer && (
+          <div className="flex items-center justify-between gap-2">
+            {footer}
+          </div>
+        )}
       </div>
     </dialog>
   );

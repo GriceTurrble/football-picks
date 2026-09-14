@@ -1,0 +1,76 @@
+## Run the CI suite in PRs and on pushes to the main branch.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types:
+      # Defaults
+      - opened
+      - synchronize
+      - reopened
+      # Draft->ready
+      - ready_for_review
+      # Edit the title or top comment
+      - edited
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pre-commit-check:
+    runs-on: ubuntu-latest
+    # Elevating permissions for `contents` and `pull-requests` required
+    # when using the `suggest_fixes` option:
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          version: 12
+          runtime: node@26
+          cache: true
+      - run: pnpm install
+      # Next.js generates ambient globals (LayoutProps, PageProps, RouteContext)
+      # via next dev/build/typegen. `tsc` in the lint step below needs these
+      # to already exist since we don't run a full `next build` in CI.
+      - run: pnpm exec next typegen
+      - uses: griceturrble/precommit-checks-action@62f15bdb493bd607c2496de1bcb87657354e22a5 # v3.1.1
+        with:
+          suggest_fixes: "true"
+
+  # tests:
+  #   name: Python Tests
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     matrix:
+  #       python-version:
+  #         - "3.13"
+  #         - "3.14"
+  #   steps:
+  #     - name: Checkout the code
+  #       uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+  #     - name: Install uv
+  #       uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
+  #       with:
+  #         python-version: ${{ matrix.python-version }}
+
+  #     - name: Install project
+  #       run: uv sync --all-groups
+
+  #     - name: Run tests
+  #       run: uv run pytest
+
+  # test-result:
+  #   name: Test results
+  #   runs-on: ubuntu-latest
+  #   needs:
+  #     - tests
+  #   steps:
+  #     - run: echo "Tests passing!"
