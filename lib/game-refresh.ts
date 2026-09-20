@@ -6,12 +6,19 @@
 //
 // It ticks every REFRESH_INTERVAL_MS regardless, but only actually calls
 // ESPN when needsSync says a game is likely to have changed - in progress,
-// or within SYNC_WINDOW_MS of kickoff (see lib/sync-window.ts). A season's
-// score/status sync and each eligible game's odds sync run off the exact
-// same per-tick eligibility check, computed once from the games as they
-// stood at the start of the tick. `force` bypasses that check entirely -
-// used for the very first run on server start and for manual refreshes (see
-// lib/refresh-actions.ts).
+// or within SYNC_WINDOW_MS of kickoff (see lib/sync-window.ts). `force`
+// bypasses that check for the season's score/status sync only - used for the
+// very first run on server start and for manual refreshes (see
+// lib/refresh-actions.ts) - so a fresh server (or a manual "Refresh") always
+// re-checks every season's scores regardless of staleness. Odds are a much
+// bigger cost (one ESPN request per game, versus one per season for scores)
+// and stay window-gated even then: a game months out or long since Final has
+// nothing new to fetch, force or not.
+//
+// Both checks read `games` as it stood at the very start of the tick, before
+// syncSeason runs - so a game that's still "in progress" as of that snapshot
+// gets one last odds sync in the very tick that its score sync flips it to
+// Final, and is correctly excluded from then on.
 import { listSeasons, listGames } from "@/lib/games";
 import { syncSeason } from "@/lib/espn-sync";
 import { syncOdds } from "@/lib/odds-sync";
@@ -24,10 +31,8 @@ async function refreshAllSeasons(force = false): Promise<void> {
   const now = Date.now();
   for (const season of listSeasons()) {
     const games = listGames(season);
-    const eligible = force
-      ? games
-      : games.filter((game) => needsSync(game, now));
-    if (eligible.length === 0) continue;
+    const oddsEligible = games.filter((game) => needsSync(game, now));
+    if (!force && oddsEligible.length === 0) continue;
 
     try {
       // syncSeason stamps season_sync itself (see lib/sync-status.ts) - it
@@ -38,7 +43,7 @@ async function refreshAllSeasons(force = false): Promise<void> {
       console.error(`[game-refresh] failed to sync season ${season}:`, err);
     }
 
-    for (const game of eligible) {
+    for (const game of oddsEligible) {
       try {
         await syncOdds(game.id);
       } catch (err) {
