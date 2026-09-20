@@ -147,7 +147,9 @@ const upsertOdds = (gameId: string, item: EspnOddsItem, fetchedAt: string) =>
 // itself, which only references teams by an ESPN resource URL.
 function describeGame(gameId: string): string {
   const game = getGame(gameId);
-  return game ? `${game.awayTeamName} @ ${game.homeTeamName}` : "unknown teams";
+  return game
+    ? `W${game.week} ${game.awayTeamName} @ ${game.homeTeamName}`
+    : "unknown teams";
 }
 
 /**
