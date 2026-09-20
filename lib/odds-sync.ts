@@ -4,6 +4,7 @@
 // one competition at a time, on demand, from the odds modal's Refresh button
 // (see lib/odds-actions.ts).
 import { getDb } from "@/lib/db";
+import { getGame } from "@/lib/games";
 import type {
   OddsSideDetail,
   OddsSideSnapshot,
@@ -138,6 +139,17 @@ const upsertOdds = (gameId: string, item: EspnOddsItem, fetchedAt: string) =>
       fetchedAt,
     );
 
+// Both the background refresh loop (lib/game-refresh.ts) and the modal's
+// manual Refresh button (lib/odds-actions.ts) funnel through syncOdds, so
+// logging here - rather than at each call site - is what gets every odds
+// fetch logged regardless of who triggered it. Team names come from our own
+// DB (already populated by lib/espn-sync.ts) rather than the odds response
+// itself, which only references teams by an ESPN resource URL.
+function describeGame(gameId: string): string {
+  const game = getGame(gameId);
+  return game ? `${game.awayTeamName} @ ${game.homeTeamName}` : "unknown teams";
+}
+
 /**
  * Fetches odds for a single game from ESPN and upserts it into the local
  * database. Returns true if odds were found and stored, false if ESPN has
@@ -146,8 +158,16 @@ const upsertOdds = (gameId: string, item: EspnOddsItem, fetchedAt: string) =>
  */
 export async function syncOdds(gameId: string): Promise<boolean> {
   const item = await fetchOddsItem(gameId);
-  if (!item) return false;
+  if (!item) {
+    console.log(
+      `[odds-sync] no odds available for competition ${gameId} (${describeGame(gameId)})`,
+    );
+    return false;
+  }
 
   upsertOdds(gameId, item, new Date().toISOString());
+  console.log(
+    `[odds-sync] synced odds for competition ${gameId} (${describeGame(gameId)})`,
+  );
   return true;
 }

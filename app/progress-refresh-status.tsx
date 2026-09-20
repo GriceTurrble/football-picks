@@ -7,7 +7,7 @@ import { REFRESH_INTERVAL_MS } from "@/lib/constants";
 import { refreshNow } from "@/lib/refresh-actions";
 import { formatRefreshedAt } from "@/lib/format";
 
-interface RefreshStatusProps {
+interface ProgressRefreshStatusProps {
   /**
    * Whether any game is in progress or close enough to kickoff that its
    * status is worth re-checking (see lib/sync-window.ts). Only then does
@@ -38,7 +38,10 @@ interface RefreshStatusProps {
 // an active sync window there's nothing to observe settling until the
 // background loop's next real sync, which could be a long way off, leaving
 // the old approach stuck showing "Refreshing…" indefinitely.
-export function RefreshStatus({ active, lastSyncedAt }: RefreshStatusProps) {
+export function ProgressRefreshStatus({
+  active,
+  lastSyncedAt,
+}: ProgressRefreshStatusProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);

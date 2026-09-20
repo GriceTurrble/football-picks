@@ -10,6 +10,7 @@ export function GameListItem({
   scoreTotal,
   odds,
   lockOverride = false,
+  showOddsButton = true,
 }: {
   game: Game;
   pick?: PickSelection;
@@ -18,6 +19,12 @@ export function GameListItem({
   /** This game's betting odds, if any have been fetched. */
   odds?: Odds | null;
   lockOverride?: boolean;
+  /**
+   * False when this GameListItem is itself being rendered inside the odds
+   * modal (see app/odds-button.tsx) - showing the trigger there would just
+   * open another copy of the same modal it's already in.
+   */
+  showOddsButton?: boolean;
 }) {
   // Picks lock once a game kicks off - there's no point (or fairness) in
   // letting a pick change once the outcome is already in motion. The Lock
@@ -55,12 +62,15 @@ export function GameListItem({
           override={lockOverride}
         />
         <GameStatus game={game}>
-          <OddsButton
-            gameId={game.id}
-            odds={odds}
-            awayTeamName={game.awayTeamName}
-            homeTeamName={game.homeTeamName}
-          />
+          {showOddsButton && (
+            <OddsButton
+              game={game}
+              odds={odds}
+              pick={pick}
+              scoreTotal={scoreTotal}
+              lockOverride={lockOverride}
+            />
+          )}
         </GameStatus>
         <TeamBox
           gameId={game.id}

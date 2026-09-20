@@ -2,8 +2,15 @@
 
 import { useRef, useState, useTransition } from "react";
 import { MdBarChart, MdRefresh } from "react-icons/md";
-import type { Odds, OddsSideSnapshot, OddsTotalSnapshot } from "@/lib/types";
+import type {
+  Game,
+  Odds,
+  OddsSideSnapshot,
+  OddsTotalSnapshot,
+  PickSelection,
+} from "@/lib/types";
 import { Modal } from "@/app/modal";
+import { GameListItem } from "@/app/game-list-item";
 import { refreshOdds } from "@/lib/odds-actions";
 import { formatRefreshedAt } from "@/lib/format";
 
@@ -114,23 +121,26 @@ const rowClassName = "border-t border-black/8 dark:border-white/10";
 const cellClassName = "py-1 text-right";
 
 export function OddsButton({
-  gameId,
+  game,
   odds,
-  awayTeamName,
-  homeTeamName,
+  pick,
+  scoreTotal,
+  lockOverride,
 }: {
-  gameId: string;
+  game: Game;
   /** Undefined (not fetched into props) and null (fetched, nothing in the DB) both render as placeholders. */
   odds?: Odds | null;
-  awayTeamName: string;
-  homeTeamName: string;
+  pick?: PickSelection;
+  scoreTotal?: number;
+  lockOverride?: boolean;
 }) {
+  const { awayTeamName, homeTeamName } = game;
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   function handleRefresh() {
     startTransition(async () => {
-      await refreshOdds(gameId);
+      await refreshOdds(game.id);
     });
   }
 
@@ -179,6 +189,20 @@ export function OddsButton({
         }
       >
         <div className="flex flex-col gap-3 text-sm">
+          {/* Lets a winner/score-total be picked without leaving the modal.
+              showOddsButton=false, since this copy of the game is already
+              inside its own odds modal - showing the trigger again here
+              would just open another one on top of itself. */}
+          <ul className="flex flex-col gap-2">
+            <GameListItem
+              game={game}
+              pick={pick}
+              scoreTotal={scoreTotal}
+              lockOverride={lockOverride}
+              showOddsButton={false}
+            />
+          </ul>
+
           <div className="flex items-center justify-between gap-2 text-xs text-zinc-500 dark:text-zinc-400">
             <span>{odds?.providerName ?? "No odds fetched yet"}</span>
             <span>
