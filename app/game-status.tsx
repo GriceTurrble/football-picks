@@ -4,8 +4,17 @@ import { formatKickoff } from "@/lib/format";
 import { StatusLabel } from "@/app/status-label";
 
 // Sits between the two TeamBoxes: scores (or just the @ separator, before
-// kickoff) on top, schedule details underneath.
-export function GameStatus({ game }: { game: Game }) {
+// kickoff) on top, schedule details underneath. `children`, if given, renders
+// below everything else - used by GameListItem for the odds trigger button,
+// which needs game-list-level data (odds, team names) that GameStatus itself
+// has no reason to know about.
+export function GameStatus({
+  game,
+  children,
+}: {
+  game: Game;
+  children?: React.ReactNode;
+}) {
   const showScore = game.status !== "pre";
 
   return (
@@ -37,6 +46,7 @@ export function GameStatus({ game }: { game: Game }) {
           <strong>W{game.week}</strong> &middot; {formatKickoff(game.kickoff)}
         </div>
       </div>
+      {children}
     </div>
   );
 }

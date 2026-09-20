@@ -1,8 +1,9 @@
 import { listGames, listSeasons, listWeeks } from "@/lib/games";
 import { listByeWeeks } from "@/lib/bye-weeks";
 import { listPicks, listScoreTotals } from "@/lib/picks";
-import { needsSync } from "@/lib/sync-window";
-import { getLastSyncedAt } from "@/lib/sync-status";
+import { listOdds } from "@/lib/odds";
+import { anyNeedSync } from "@/lib/sync-window";
+import { getSeasonLastSyncedAt } from "@/lib/sync-status";
 import { SeasonSelect } from "@/app/season-select";
 import { WeekSelect } from "@/app/week-select";
 import { FilterDropdown } from "@/app/filter-dropdown";
@@ -16,7 +17,7 @@ import { LockOverride } from "@/app/lock-override";
 import { CompileButton } from "@/app/compile-button";
 import { GameList } from "@/app/game-list";
 import { TeamFilterProvider, TeamFilterInput } from "@/app/team-filter";
-import { RefreshStatus } from "@/app/refresh-status";
+import { ProgressRefreshStatus } from "@/app/progress-refresh-status";
 
 function firstParam(value: string | string[] | undefined): string | undefined {
   return Array.isArray(value) ? value[0] : value;
@@ -54,14 +55,17 @@ export default async function Home(props: PageProps<"/">) {
   const byes = listByeWeeks(season, week);
   const picks = listPicks(games.map((game) => game.id));
   const scoreTotals = listScoreTotals(games.map((game) => game.id));
+  const odds = listOdds(games.map((game) => game.id));
   const lockOverride = firstParam(searchParams.override) === "1";
 
   // Auto-refresh only matters while ESPN's data for this season could
   // actually be changing; see lib/sync-window.ts. Checked against every
   // game in the season, not just the filtered week, so switching weeks
   // doesn't pause it.
-  const syncActive = needsSync(week === undefined ? games : listGames(season));
-  const lastSyncedAt = getLastSyncedAt(season);
+  const progressSyncActive = anyNeedSync(
+    week === undefined ? games : listGames(season),
+  );
+  const lastProgressSyncedAt = getSeasonLastSyncedAt(season);
 
   return (
     <main className="mx-auto flex w-full max-w-2xl min-h-0 flex-1 flex-col gap-2 overflow-hidden py-6">
@@ -72,7 +76,10 @@ export default async function Home(props: PageProps<"/">) {
             {season} Season
           </p>
         </div>
-        <RefreshStatus active={syncActive} lastSyncedAt={lastSyncedAt} />
+        <ProgressRefreshStatus
+          active={progressSyncActive}
+          lastSyncedAt={lastProgressSyncedAt}
+        />
       </div>
 
       {/* Keyed on week so the team/status/day filters clear when the week
@@ -87,6 +94,7 @@ export default async function Home(props: PageProps<"/">) {
                 games={games}
                 picks={picks}
                 scoreTotals={scoreTotals}
+                odds={odds}
                 lockOverride={lockOverride}
               />
               <SeasonSelect season={season} seasons={seasons} />
@@ -109,6 +117,7 @@ export default async function Home(props: PageProps<"/">) {
               byes={byes}
               picks={picks}
               scoreTotals={scoreTotals}
+              odds={odds}
               lockOverride={lockOverride}
             />
           </GameDayFilterProvider>

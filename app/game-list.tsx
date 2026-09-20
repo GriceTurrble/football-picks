@@ -1,6 +1,6 @@
 "use client";
 
-import type { ByeWeek, Game, PickSelection } from "@/lib/types";
+import type { ByeWeek, Game, Odds, PickSelection } from "@/lib/types";
 import { GameListItem } from "@/app/game-list-item";
 import { ByeWeekItem } from "@/app/bye-week-item";
 import { useTeamFilter } from "@/app/team-filter";
@@ -95,12 +95,14 @@ export function GameList({
   byes,
   picks,
   scoreTotals,
+  odds,
   lockOverride,
 }: {
   games: Game[];
   byes: ByeWeek[];
   picks: Record<string, PickSelection>;
   scoreTotals: Record<string, number>;
+  odds: Record<string, Odds>;
   lockOverride: boolean;
 }) {
   const { search } = useTeamFilter();
@@ -167,6 +169,7 @@ export function GameList({
                     game={game}
                     pick={picks[game.id]}
                     scoreTotal={scoreTotals[game.id]}
+                    odds={odds[game.id]}
                     lockOverride={lockOverride}
                   />
                 ))}

@@ -57,6 +57,35 @@ export function getDb(): DatabaseSync {
       season INTEGER PRIMARY KEY,
       synced_at TEXT NOT NULL
     );
+
+    -- Betting odds for a game (ESPN's "competition" id, same as games.id -
+    -- see lib/odds-sync.ts), from whichever single provider ESPN ranks
+    -- highest priority for that game. The *_detail columns hold ESPN's raw
+    -- open/current/close breakdown as JSON - display-only nested structure
+    -- that isn't worth flattening into columns of its own (see lib/types.ts
+    -- for its shape).
+    CREATE TABLE IF NOT EXISTS odds (
+      game_id TEXT PRIMARY KEY REFERENCES games (id),
+      provider_name TEXT NOT NULL,
+      provider_priority INTEGER,
+      details TEXT,
+      spread REAL,
+      over_under REAL,
+      over_odds REAL,
+      under_odds REAL,
+      moneyline_winner INTEGER,
+      spread_winner INTEGER,
+      home_moneyline INTEGER,
+      home_spread_odds REAL,
+      home_favorite INTEGER,
+      home_detail TEXT NOT NULL,
+      away_moneyline INTEGER,
+      away_spread_odds REAL,
+      away_favorite INTEGER,
+      away_detail TEXT NOT NULL,
+      total_detail TEXT NOT NULL,
+      fetched_at TEXT NOT NULL
+    );
   `);
 
   migratePicksTable(db);
