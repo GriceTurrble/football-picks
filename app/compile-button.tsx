@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { Game, PickSelection } from "@/lib/types";
+import type { Game, Odds, PickSelection } from "@/lib/types";
 import { Modal } from "@/app/modal";
 import { GameListItem } from "@/app/game-list-item";
 import { LockOverride } from "@/app/lock-override";
@@ -45,6 +45,7 @@ export function CompileButton({
   games,
   picks,
   scoreTotals,
+  odds,
   lockOverride,
 }: {
   season: number;
@@ -52,6 +53,7 @@ export function CompileButton({
   games: Game[];
   picks: Record<string, PickSelection>;
   scoreTotals: Record<string, number>;
+  odds: Record<string, Odds>;
   lockOverride: boolean;
 }) {
   const [open, setOpen] = useState(false);
@@ -149,6 +151,7 @@ export function CompileButton({
                   game={game}
                   pick={picks[game.id]}
                   scoreTotal={scoreTotals[game.id]}
+                  odds={odds[game.id]}
                   lockOverride={lockOverride}
                 />
               ))}

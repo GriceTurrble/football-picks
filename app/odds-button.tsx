@@ -198,6 +198,7 @@ export function OddsButton({
               game={game}
               pick={pick}
               scoreTotal={scoreTotal}
+              odds={odds}
               lockOverride={lockOverride}
               showOddsButton={false}
             />

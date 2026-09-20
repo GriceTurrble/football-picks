@@ -94,6 +94,7 @@ export default async function Home(props: PageProps<"/">) {
                 games={games}
                 picks={picks}
                 scoreTotals={scoreTotals}
+                odds={odds}
                 lockOverride={lockOverride}
               />
               <SeasonSelect season={season} seasons={seasons} />
