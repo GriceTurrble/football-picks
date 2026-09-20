@@ -44,6 +44,11 @@ export function GameListItem({
         : "away"
       : null;
 
+  // Each TeamBox shows its own side's current spread line, if odds have
+  // been fetched - e.g. "-3" on the favorite, "+3" on the underdog.
+  const awaySpread = odds?.away.detail.current?.pointSpread?.american;
+  const homeSpread = odds?.home.detail.current?.pointSpread?.american;
+
   return (
     <li>
       {/* 5-column layout: each TeamBox is 1 column, GameStatus spans 2 down
@@ -60,6 +65,8 @@ export function GameListItem({
           won={winner === "away"}
           disabled={locked}
           override={lockOverride}
+          spread={awaySpread}
+          favorite={odds?.away.favorite ?? false}
         />
         <GameStatus game={game}>
           {showOddsButton && (
@@ -81,6 +88,8 @@ export function GameListItem({
           won={winner === "home"}
           disabled={locked}
           override={lockOverride}
+          spread={homeSpread}
+          favorite={odds?.home.favorite ?? false}
         />
         <ScoreTotal
           game={game}

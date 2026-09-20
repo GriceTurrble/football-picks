@@ -16,6 +16,8 @@ export function TeamBox({
   disabled = false,
   override = false,
   className = "",
+  spread,
+  favorite = false,
 }: {
   gameId: string;
   team: PickSelection;
@@ -27,6 +29,10 @@ export function TeamBox({
   disabled?: boolean;
   override?: boolean;
   className?: string;
+  /** This team's current point spread (e.g. "-3", "+3.5"), if odds have been fetched. */
+  spread?: string;
+  /** Whether this team is currently favored to win, per the fetched odds. */
+  favorite?: boolean;
 }) {
   // Clicking an already-selected team unselects it; otherwise it becomes the
   // pick.
@@ -60,6 +66,12 @@ export function TeamBox({
         <span className="w-full truncate text-center text-xs text-zinc-600 dark:text-zinc-400">
           {name}
         </span>
+        {spread && (
+          <span className="w-full truncate text-center text-[0.65rem] font-semibold text-zinc-500 dark:text-zinc-500">
+            {spread}
+            {favorite ? " (favored)" : ""}
+          </span>
+        )}
       </button>
     </form>
   );
