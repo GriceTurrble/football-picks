@@ -1,13 +1,13 @@
 // Shared between the server-side background sync loop
 // (lib/game-refresh.ts) and app/page.tsx, which uses it to decide whether
-// to let RefreshStatus auto-tick at all: whether ESPN's data for a set of
-// games is likely still changing right now.
+// to let ProgressRefreshStatus auto-tick at all: whether ESPN's data for a
+// set of games is likely still changing right now.
 import type { Game, GameStatus } from "@/lib/types";
 import { ODDS_SYNC_WINDOW_MS, PROGRESS_SYNC_WINDOW_MS } from "@/lib/constants";
 
 /**
- * True when any game is in progress, or within SYNC_WINDOW_MS of its
- * kickoff without (yet) being marked in progress - the window where a
+ * True when any game is in progress, or within PROGRESS_SYNC_WINDOW_MS of
+ * its kickoff without (yet) being marked in progress - the window where a
  * game's status is likely stale and worth re-checking against ESPN.
  */
 export function needsProgressSync(
@@ -25,8 +25,8 @@ export function needsProgressSync(
  * Whether `game`'s odds are worth re-fetching from ESPN this tick (see
  * lib/game-refresh.ts). `priorStatus` is the game's status as of just before
  * this tick's score/status sync (or its current status, on ticks that skip
- * that sync entirely - see needsSync above), used only to catch the one
- * exception below:
+ * that sync entirely - see needsProgressSync above), used only to catch the
+ * one exception below:
  *
  * - In progress: always worth syncing - the line keeps moving, and this is
  *   also how a final settlement gets picked up the moment a game ends.

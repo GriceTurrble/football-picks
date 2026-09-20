@@ -5,16 +5,16 @@
 // already exist in the database.
 //
 // It ticks every REFRESH_INTERVAL_MS regardless, but only actually calls
-// ESPN's scoreboard endpoint when needsSync says a season's games are likely
-// to have changed (something in progress, or close enough to kickoff that a
-// "pre" game's status could flip any moment) - see lib/sync-window.ts.
+// ESPN's scoreboard endpoint when needsProgressSync says a season's games are
+// likely to have changed (something in progress, or close enough to kickoff
+// that a "pre" game's status could flip any moment) - see lib/sync-window.ts.
 // `force` bypasses that check; used for the very first run on server start
 // and for manual refreshes (see lib/refresh-actions.ts).
 //
 // Odds run on their own, wider window (see needsOddsSync) regardless of
 // `force` or whether the score sync above ran this tick - a game's odds can
 // be worth re-fetching for a full day before kickoff, long before it's
-// anywhere near needsSync's much tighter window.
+// anywhere near needsProgressSync's much tighter window.
 import { listSeasons, listGames } from "@/lib/games";
 import { syncSeason } from "@/lib/espn-sync";
 import { syncOdds } from "@/lib/odds-sync";
@@ -71,8 +71,8 @@ async function refreshAllSeasons(force = false): Promise<void> {
 /**
  * Starts the refresh loop, if it isn't already running. Runs once
  * immediately (forced, so a fresh server always starts with current data),
- * then every 5 minutes (gated by needsSync). Safe to call more than once -
- * only the first call schedules anything.
+ * then every 5 minutes (gated by needsProgressSync). Safe to call more than
+ * once - only the first call schedules anything.
  */
 export function startGameRefresh(): void {
   if (started) return;
