@@ -3,6 +3,7 @@ import { TeamBox } from "@/app/team-box";
 import { GameStatus } from "@/app/game-status";
 import { ScoreTotal } from "@/app/score-total";
 import { OddsButton } from "@/app/odds-button";
+import { GameScore } from "@/app/game-score";
 
 export function GameListItem({
   game,
@@ -55,7 +56,7 @@ export function GameListItem({
           the middle, and ScoreTotal is 1 column on the right. Grid items
           stretch to fill their column's width by default, so none of the
           children need their own width utility classes. */}
-      <div className="grid grid-cols-5 items-stretch gap-2 rounded-lg border p-2 border-black/8 dark:border-white/[.145]">
+      <div className="grid grid-cols-3 md:grid-cols-5 items-stretch gap-2 rounded-lg p-2 ring-3 ring-black/8 dark:ring-white/25">
         <TeamBox
           gameId={game.id}
           team="away"
@@ -66,8 +67,10 @@ export function GameListItem({
           disabled={locked}
           override={lockOverride}
           spread={awaySpread}
+          className="md:col-1 md:row-1"
           favorite={odds?.away.favorite ?? false}
         />
+        <GameScore game={game} className="md:hidden" />
         <GameStatus game={game}>
           {showOddsButton && (
             <OddsButton
