@@ -2,7 +2,7 @@ import { listGames, listSeasons, listWeeks } from "@/lib/games";
 import { listByeWeeks } from "@/lib/bye-weeks";
 import { listPicks, listScoreTotals } from "@/lib/picks";
 import { listOdds } from "@/lib/odds";
-import { needsProgressSync } from "@/lib/sync-window";
+import { anyNeedSync } from "@/lib/sync-window";
 import { getSeasonLastSyncedAt } from "@/lib/sync-status";
 import { SeasonSelect } from "@/app/season-select";
 import { WeekSelect } from "@/app/week-select";
@@ -62,7 +62,7 @@ export default async function Home(props: PageProps<"/">) {
   // actually be changing; see lib/sync-window.ts. Checked against every
   // game in the season, not just the filtered week, so switching weeks
   // doesn't pause it.
-  const progressSyncActive = needsProgressSync(
+  const progressSyncActive = anyNeedSync(
     week === undefined ? games : listGames(season),
   );
   const lastProgressSyncedAt = getSeasonLastSyncedAt(season);
