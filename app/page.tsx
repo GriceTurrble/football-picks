@@ -68,7 +68,7 @@ export default async function Home(props: PageProps<"/">) {
   const lastProgressSyncedAt = getSeasonLastSyncedAt(season);
 
   return (
-    <main className="mx-auto flex w-full max-w-2xl min-h-0 flex-1 flex-col gap-2 overflow-hidden py-6">
+    <main className="mx-auto flex w-full max-w-4xl min-h-0 flex-1 flex-col gap-2 overflow-hidden py-6 px-2">
       <div className="flex items-start justify-between gap-2">
         <div>
           <h1 className="text-2xl font-semibold">Football Picks</h1>
