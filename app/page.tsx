@@ -3,7 +3,7 @@ import { listByeWeeks } from "@/lib/bye-weeks";
 import { listPicks, listScoreTotals } from "@/lib/picks";
 import { listOdds } from "@/lib/odds";
 import { needsProgressSync } from "@/lib/sync-window";
-import { getLastSyncedAt } from "@/lib/sync-status";
+import { getSeasonLastSyncedAt } from "@/lib/sync-status";
 import { SeasonSelect } from "@/app/season-select";
 import { WeekSelect } from "@/app/week-select";
 import { FilterDropdown } from "@/app/filter-dropdown";
@@ -65,7 +65,7 @@ export default async function Home(props: PageProps<"/">) {
   const progressSyncActive = needsProgressSync(
     week === undefined ? games : listGames(season),
   );
-  const lastProgressSyncedAt = getLastSyncedAt(season);
+  const lastProgressSyncedAt = getSeasonLastSyncedAt(season);
 
   return (
     <main className="mx-auto flex w-full max-w-2xl min-h-0 flex-1 flex-col gap-2 overflow-hidden py-6">

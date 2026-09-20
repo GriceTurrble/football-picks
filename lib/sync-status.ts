@@ -11,7 +11,7 @@ import { getDb } from "./db.ts";
  * settling, etc.), which is all a client-side timestamp could ever really
  * mean.
  */
-export function markSynced(
+export function markSeasonSynced(
   season: number,
   at: string = new Date().toISOString(),
 ): void {
@@ -24,7 +24,7 @@ export function markSynced(
 }
 
 /** When `season` was last successfully synced against ESPN, or null if never. */
-export function getLastSyncedAt(season: number): string | null {
+export function getSeasonLastSyncedAt(season: number): string | null {
   const row = getDb()
     .prepare("SELECT synced_at FROM season_sync WHERE season = ?")
     .get(season) as { synced_at: string } | undefined;

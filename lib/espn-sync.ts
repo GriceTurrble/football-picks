@@ -7,7 +7,7 @@ import type { DatabaseSync } from "node:sqlite";
 // scripts/seed.mts, which runs under plain `node` - no bundler to resolve
 // the "@/*" alias there.
 import { getDb } from "./db.ts";
-import { markSynced } from "./sync-status.ts";
+import { markSeasonSynced } from "./sync-status.ts";
 
 const SCOREBOARD_URL =
   "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard";
@@ -171,6 +171,6 @@ export async function syncSeason(
     total += eventCount;
     onWeek?.(week, eventCount, byeCount);
   }
-  markSynced(season);
+  markSeasonSynced(season);
   return total;
 }
