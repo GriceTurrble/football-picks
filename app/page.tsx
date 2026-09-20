@@ -1,6 +1,7 @@
 import { listGames, listSeasons, listWeeks } from "@/lib/games";
 import { listByeWeeks } from "@/lib/bye-weeks";
 import { listPicks, listScoreTotals } from "@/lib/picks";
+import { listOdds } from "@/lib/odds";
 import { needsSync } from "@/lib/sync-window";
 import { getLastSyncedAt } from "@/lib/sync-status";
 import { SeasonSelect } from "@/app/season-select";
@@ -54,6 +55,7 @@ export default async function Home(props: PageProps<"/">) {
   const byes = listByeWeeks(season, week);
   const picks = listPicks(games.map((game) => game.id));
   const scoreTotals = listScoreTotals(games.map((game) => game.id));
+  const odds = listOdds(games.map((game) => game.id));
   const lockOverride = firstParam(searchParams.override) === "1";
 
   // Auto-refresh only matters while ESPN's data for this season could
@@ -109,6 +111,7 @@ export default async function Home(props: PageProps<"/">) {
               byes={byes}
               picks={picks}
               scoreTotals={scoreTotals}
+              odds={odds}
               lockOverride={lockOverride}
             />
           </GameDayFilterProvider>

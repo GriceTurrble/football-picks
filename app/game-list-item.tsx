@@ -1,18 +1,22 @@
-import type { Game, PickSelection } from "@/lib/types";
+import type { Game, Odds, PickSelection } from "@/lib/types";
 import { TeamBox } from "@/app/team-box";
 import { GameStatus } from "@/app/game-status";
 import { ScoreTotal } from "@/app/score-total";
+import { OddsButton } from "@/app/odds-button";
 
 export function GameListItem({
   game,
   pick,
   scoreTotal,
+  odds,
   lockOverride = false,
 }: {
   game: Game;
   pick?: PickSelection;
   /** The user's score-total tiebreaker entry for this game, if any. */
   scoreTotal?: number;
+  /** This game's betting odds, if any have been fetched. */
+  odds?: Odds | null;
   lockOverride?: boolean;
 }) {
   // Picks lock once a game kicks off - there's no point (or fairness) in
@@ -50,7 +54,14 @@ export function GameListItem({
           disabled={locked}
           override={lockOverride}
         />
-        <GameStatus game={game} />
+        <GameStatus game={game}>
+          <OddsButton
+            gameId={game.id}
+            odds={odds}
+            awayTeamName={game.awayTeamName}
+            homeTeamName={game.homeTeamName}
+          />
+        </GameStatus>
         <TeamBox
           gameId={game.id}
           team="home"
