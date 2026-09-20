@@ -1,6 +1,8 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useId, useSyncExternalStore } from "react";
+import { createPortal } from "react-dom";
+import { useModalStack } from "@/app/modal-stack";
 
 interface ModalProps {
   open: boolean;
@@ -13,12 +15,44 @@ interface ModalProps {
   widthClassName?: string;
 }
 
-// Generic modal dialog, built on the native <dialog> element for free
-// Escape-to-close, backdrop dimming, and top-layer stacking. Controlled by
-// `open` - the caller owns whether it's shown, this just syncs that to the
-// DOM - and reports back through `onClose`, which fires from the dialog's
-// native "close" event no matter how it was triggered (Escape, a backdrop
-// click, or the caller's own close button).
+// Portals can't render during SSR - document doesn't exist in Node, and
+// createPortal needs a real DOM node as its target - so Modal has to know
+// whether it's on the client yet. useSyncExternalStore's server/client
+// snapshot split is the standard way to get that without an explicit
+// setState inside an effect (which would trip the
+// react-hooks/set-state-in-effect lint rule for no real benefit here): it
+// returns `false` for the server render and the first client render (so
+// they match, no hydration mismatch), then React reruns it once more right
+// after hydration, when it returns `true`.
+function useIsClient(): boolean {
+  return useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
+}
+
+// Generic modal dialog. Built on plain positioned <div>s, deliberately not
+// the native <dialog> element - this used to use <dialog>/showModal(), but
+// nesting one open modal dialog inside another's rendered content (e.g. the
+// odds modal opened from a GameListItem embedded inside the Compiled Picks
+// modal - see app/odds-button.tsx) hit inconsistent browser bookkeeping for
+// "which dialog is topmost": closing the inner one was also closing the
+// outer one. Native <dialog> stacking just isn't reliable for this "modal
+// opened from inside another modal" shape, so this manages its own stack
+// instead (see app/modal-stack.tsx) - each Modal instance pushes its own id
+// when it opens and pops only that id when it closes or unmounts, so closing
+// one can never affect any other, regardless of nesting depth.
+//
+// Rendered through a portal straight to document.body, rather than inline
+// wherever the component is used, both so its fixed positioning isn't
+// affected by any ancestor and so a stacked modal always ends up a DOM
+// sibling of the one that opened it, not nested inside it.
+//
+// Controlled by `open` - the caller owns whether it's shown, this just syncs
+// that to the stack and the DOM - and reports back through `onClose`, which
+// fires on Escape (only when this modal is the topmost - see useModalStack)
+// or a click on the backdrop itself.
 export function Modal({
   open,
   onClose,
@@ -27,52 +61,78 @@ export function Modal({
   footer,
   widthClassName = "max-w-lg",
 }: ModalProps) {
-  const ref = useRef<HTMLDialogElement>(null);
+  const id = useId();
+  const isClient = useIsClient();
+  const { stack, open: pushOpen, close: popOpen } = useModalStack();
 
   useEffect(() => {
-    const dialog = ref.current;
-    if (!dialog) return;
-    if (open && !dialog.open) dialog.showModal();
-    if (!open && dialog.open) dialog.close();
-  }, [open]);
+    if (!open) return;
+    pushOpen(id);
+    return () => popOpen(id);
+  }, [open, id, pushOpen, popOpen]);
 
-  return (
-    <dialog
-      ref={ref}
-      onClose={onClose}
+  const stackIndex = stack.indexOf(id);
+  const isTop = stackIndex === stack.length - 1;
+
+  useEffect(() => {
+    if (!open) return;
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape" && isTop) onClose();
+    }
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [open, isTop, onClose]);
+
+  if (!isClient) return null;
+
+  const titleId = title ? `${id}-title` : undefined;
+  // Stack position - not DOM/mount order, which is fixed at initial render
+  // for every GameListItem's odds modal regardless of when each one is
+  // actually opened - drives z-index, so whichever modal opened most
+  // recently always paints above the others.
+  const zIndex = 100 + Math.max(stackIndex, 0) * 2;
+
+  return createPortal(
+    <div
+      role="presentation"
+      data-open={open || undefined}
+      style={{ zIndex }}
+      // The whole overlay (backdrop dimming + panel) fades in/out together
+      // as one unit; the panel additionally scales on its own below. Both
+      // properties this transitions - opacity and display - need
+      // transition-discrete (allow-discrete) so the display:none <-> flex
+      // swap waits for the fade to finish instead of snapping instantly,
+      // with @starting-style (the starting: variant) supplying the frame to
+      // animate in from the moment it stops being display:none.
+      className="fixed inset-0 hidden items-start justify-center overflow-y-auto bg-black/40 opacity-0 transition-all duration-300 ease-in-out transition-discrete data-open:flex data-open:opacity-100 starting:data-open:opacity-0 dark:bg-black/60"
       onClick={(event) => {
-        // A click that lands on the <dialog> element itself (rather than
-        // something inside the panel below) is a click on the backdrop.
-        if (event.target === ref.current) ref.current?.close();
+        // A click that lands on this overlay itself (rather than the panel
+        // below) is a click on the backdrop.
+        if (event.target === event.currentTarget) onClose();
       }}
-      // The browser centers an open <dialog> via its own UA-stylesheet
-      // margin: auto, but Tailwind's preflight resets every element's
-      // margin to 0. mx-auto restores horizontal centering; my-8 gives it a
-      // fixed top/bottom margin instead (rather than auto, which would
-      // re-center it vertically) so a tall panel grows downward from a
-      // fixed offset instead of staying pinned to the vertical middle. The
-      // dialog's own UA-stylesheet overflow: auto (while in the top layer)
-      // still kicks in once that height plus the my-8 margins exceeds the
-      // viewport, so it scrolls internally rather than growing off-screen.
-      //
-      // The fade/scale-in on open needs `display` itself in the transition
-      // (via transition-discrete, i.e. transition-behavior: allow-discrete)
-      // - otherwise the browser has no previous frame to animate from, since
-      // the dialog was `display: none` a moment ago. starting:open:* supplies
-      // that previous frame's values (@starting-style). This also gives the
-      // reverse (fade/scale-out on close) for free, holding `display: none`
-      // until the transition finishes.
-      className={`mx-auto my-8 w-full ${widthClassName} scale-95 rounded-lg border border-black/8 bg-background p-0 text-foreground opacity-0 transition-all duration-300 ease-in-out transition-discrete open:scale-100 open:opacity-100 starting:open:scale-95 starting:open:opacity-0 backdrop:bg-black/40 dark:border-white/[.145] dark:backdrop:bg-black/60`}
     >
-      <div className="flex flex-col gap-3 p-4">
-        {title && <h2 className="text-lg font-semibold">{title}</h2>}
-        {children}
-        {footer && (
-          <div className="flex items-center justify-between gap-2">
-            {footer}
-          </div>
-        )}
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        data-open={open || undefined}
+        className={`mx-auto my-8 w-full ${widthClassName} scale-95 rounded-lg border border-black/8 bg-background p-0 text-foreground transition-transform duration-300 ease-in-out data-open:scale-100 dark:border-white/[.145]`}
+      >
+        <div className="flex flex-col gap-3 p-4">
+          {title && (
+            <h2 id={titleId} className="text-lg font-semibold">
+              {title}
+            </h2>
+          )}
+          {children}
+          {footer && (
+            <div className="flex items-center justify-between gap-2">
+              {footer}
+            </div>
+          )}
+        </div>
       </div>
-    </dialog>
+    </div>,
+    document.body,
   );
 }
