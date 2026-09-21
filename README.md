@@ -57,6 +57,12 @@ pnpm dev
 
 Open [http://localhost:3000](http://localhost:3000) to see the running site.
 
+> [!NOTE]
+> If port 3000 is in use by some other process,
+> NextJS may try to automatically launch the server on port 3001, instead.
+>
+> In that case, just go there: [http://localhost:3001](http://localhost:3001)
+
 ### Loading a season
 
 The database starts empty. Seed it with a season's schedule (defaults to
