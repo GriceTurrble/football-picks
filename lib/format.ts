@@ -10,7 +10,7 @@ export function formatKickoff(iso: string): string {
 
 export function formatRefreshedAt(iso: string): string {
   return new Date(iso).toLocaleString("en-US", {
-    month: "short",
+    month: "numeric",
     day: "numeric",
     year: "numeric",
     hour: "numeric",

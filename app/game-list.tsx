@@ -162,7 +162,7 @@ export function GameList({
               <h3 className="text-xs font-semibold tracking-wide text-zinc-500 uppercase dark:text-zinc-400">
                 {dayGroup.day}
               </h3>
-              <ul className="grid grid-cols-1 md:grid-cols-2 gap-2 px-1">
+              <ul className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 {dayGroup.games.map((game) => (
                   <GameListItem
                     key={game.id}

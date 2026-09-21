@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { MdRefresh } from "react-icons/md";
 import { REFRESH_INTERVAL_MS } from "@/lib/constants";
+import { ToolTipLabel } from "@/app/tooltip";
 import { refreshNow } from "@/lib/refresh-actions";
 import { formatRefreshedAt } from "@/lib/format";
 
@@ -84,17 +85,17 @@ export function ProgressRefreshStatus({
         <MdRefresh className={isPending ? "animate-spin" : undefined} />
         Refresh
       </button>
-      <span>
-        {isPending
-          ? "Refreshing…"
-          : lastSyncedAt
-            ? `Last refreshed ${formatRefreshedAt(lastSyncedAt)}`
-            : "Not yet refreshed"}
-      </span>
-      <span>
-        Auto-refreshes from ESPN Scoreboard API every 5 min while games in
-        progress.
-      </span>
+      <ToolTipLabel
+        label={
+          isPending
+            ? "Refreshing…"
+            : lastSyncedAt
+              ? `Refreshed ${formatRefreshedAt(lastSyncedAt)}`
+              : "Not yet refreshed"
+        }
+        tip="Auto-refreshes from ESPN Scoreboard API every 5 min while games in progress."
+        className="hidden md:inline"
+      />
     </div>
   );
 }

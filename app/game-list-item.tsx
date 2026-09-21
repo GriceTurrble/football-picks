@@ -56,7 +56,7 @@ export function GameListItem({
           the middle, and ScoreTotal is 1 column on the right. Grid items
           stretch to fill their column's width by default, so none of the
           children need their own width utility classes. */}
-      <div className="grid grid-cols-3 md:grid-cols-5 items-stretch gap-2 rounded-lg p-2 ring-3 ring-black/8 dark:ring-white/25">
+      <div className="grid grid-cols-3 md:grid-cols-5 items-stretch gap-2 rounded-lg p-2 border-2 border-black/8 dark:border-white/25">
         <TeamBox
           gameId={game.id}
           team="away"

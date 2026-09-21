@@ -69,10 +69,12 @@ export default async function Home(props: PageProps<"/">) {
 
   return (
     <main className="mx-auto flex w-full max-w-4xl min-h-0 flex-1 flex-col gap-2 overflow-hidden py-6 px-2">
-      <div className="flex items-start justify-between gap-2">
+      <div className="grid grid-cols-2 md:items-start justify-between gap-2">
         <div>
-          <h1 className="text-2xl font-semibold">Football Picks</h1>
-          <p className="text-lg text-zinc-600 dark:text-zinc-400">
+          <h1 className="text-xl md:text-2xl font-semibold whitespace-nowrap">
+            Football Picks
+          </h1>
+          <p className="hidden md:block text-sm md:text-lg text-zinc-600 dark:text-zinc-400">
             {season} Season
           </p>
         </div>
@@ -87,7 +89,7 @@ export default async function Home(props: PageProps<"/">) {
       <TeamFilterProvider key={week ?? "all"}>
         <GameStatusFilterProvider key={week ?? "all"}>
           <GameDayFilterProvider key={week ?? "all"}>
-            <div className="flex items-center justify-between gap-2">
+            <div className="relative flex items-center justify-between gap-2">
               <CompileButton
                 season={season}
                 week={week}

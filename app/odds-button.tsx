@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { MdBarChart, MdRefresh } from "react-icons/md";
 import type {
   Game,
@@ -11,83 +11,9 @@ import type {
 } from "@/lib/types";
 import { Modal } from "@/app/modal";
 import { GameListItem } from "@/app/game-list-item";
+import { ToolTipLabel } from "@/app/tooltip";
 import { refreshOdds } from "@/lib/odds-actions";
 import { formatRefreshedAt } from "@/lib/format";
-
-// Hover-tooltip for a stat label. The browser's native `title` attribute is
-// unreliable here - timing is entirely up to the browser (often a second-plus
-// delay, and some browsers won't re-show one for a while right after it's
-// dismissed) - so this drives visibility with plain React state instead,
-// which shows/hides the instant the mouse enters/leaves.
-//
-// Shown via the Popover API (the `popover` attribute + show/hidePopover())
-// rather than plain CSS positioning, because a plain `position: fixed`
-// tooltip here runs into a wall: Modal's <dialog> animates open/closed via a
-// `scale` transform, and any element with a non-`none` transform/scale
-// becomes the containing block for its `position: fixed` descendants (per
-// the CSS containing-block spec) - so the tooltip's containing block ends up
-// being the dialog itself, not the viewport. Since that same dialog also has
-// `overflow: auto` (see Modal's own comment on it), any part of the tooltip
-// that would extend past the dialog's edge gets clipped by it - no z-index
-// fixes that, since it's overflow clipping, not a stacking-order contest.
-// The Popover API sidesteps this the same way <dialog> itself does: showing
-// it promotes the tooltip into the browser's top layer, which isn't subject
-// to any ancestor's overflow clipping at all, and - since it's shown after
-// the already-open dialog - naturally paints above it.
-//
-// Shows immediately but transparent, then fades in via CSS transition once
-// hovered for 250ms - rather than delaying the show itself - to dodge a
-// render-order race: `showPopover()` takes effect the instant it's called,
-// but the `left`/`top` from a fresh `setPos()` only reach the DOM once React
-// commits that state update, so a tooltip made visible in the same tick it's
-// positioned can flash at its old (or default top-left) position for a
-// frame first. Starting at opacity-0 means that stale-position frame is
-// invisible regardless of exactly when React's commit lands, and the reveal
-// only fires once React has had 250ms - far longer than any single commit
-// takes - to catch up. The timeout is stashed in a ref so a mouseleave
-// before it fires cancels the reveal outright, leaving the tooltip unseen.
-function Stat({ label, tip }: { label: string; tip: string }) {
-  const tooltipRef = useRef<HTMLSpanElement>(null);
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [pos, setPos] = useState({ x: 0, y: 0 });
-  const [visible, setVisible] = useState(false);
-
-  function show(event: React.MouseEvent<HTMLSpanElement>) {
-    const rect = event.currentTarget.getBoundingClientRect();
-    setPos({ x: rect.left + rect.width / 2, y: rect.bottom + 8 });
-    tooltipRef.current?.showPopover();
-    timeoutRef.current = setTimeout(() => setVisible(true), 250);
-  }
-
-  function hide() {
-    if (timeoutRef.current !== null) {
-      clearTimeout(timeoutRef.current);
-      timeoutRef.current = null;
-    }
-    setVisible(false);
-    tooltipRef.current?.hidePopover();
-  }
-
-  return (
-    <span
-      className="cursor-help border-b border-dotted border-zinc-400 dark:border-zinc-600"
-      onMouseEnter={show}
-      onMouseLeave={hide}
-    >
-      {label}
-      <span
-        ref={tooltipRef}
-        popover="manual"
-        role="tooltip"
-        style={{ left: pos.x, top: pos.y, transform: "translateX(-50%)" }}
-        className={`pointer-events-none m-0 inset-auto w-max max-w-64 rounded-md border border-black/8 bg-background px-2 py-1.5 text-xs font-normal text-foreground shadow-lg transition-opacity duration-150 ease-in-out dark:border-white/[.145] ${visible ? "opacity-100" : "opacity-0"}`}
-      >
-        <span className="absolute -top-1 left-1/2 h-2 w-2 -translate-x-1/2 rotate-45 border-t border-l border-black/8 bg-background dark:border-white/[.145]" />
-        {tip}
-      </span>
-    </span>
-  );
-}
 
 function formatFlag(value: boolean | null | undefined): string {
   return value === null || value === undefined ? "—" : value ? "Yes" : "No";
@@ -223,20 +149,20 @@ export function OddsButton({
                 <tr className="text-zinc-500 dark:text-zinc-400">
                   <th className="py-1 text-left font-medium">Line</th>
                   <th className="py-1 text-right font-medium">
-                    <Stat
+                    <ToolTipLabel
                       label="Open"
                       tip="The line when this sportsbook first posted odds for the game."
                     />
                   </th>
                   <th className="py-1 text-right font-medium">
-                    <Stat
+                    <ToolTipLabel
                       label="Current"
                       tip="The most recently fetched line."
                     />
                   </th>
                   {hasClose && (
                     <th className="py-1 text-right font-medium">
-                      <Stat
+                      <ToolTipLabel
                         label="Close"
                         tip="The final line right before kickoff, once the book stops taking bets."
                       />
@@ -247,7 +173,7 @@ export function OddsButton({
               <tbody className="font-mono">
                 <tr className={rowClassName}>
                   <td className="py-1">
-                    <Stat
+                    <ToolTipLabel
                       label={`${awayTeamName} spread${odds?.away.favorite ? " (fav)" : ""}`}
                       tip="The margin this team must beat (if favored) or can lose by (if the underdog) for a spread bet on them to win. The number in parentheses is the price to place that bet, in American odds."
                     />
@@ -266,7 +192,7 @@ export function OddsButton({
                 </tr>
                 <tr className={rowClassName}>
                   <td className="py-1">
-                    <Stat
+                    <ToolTipLabel
                       label={`${homeTeamName} spread${odds?.home.favorite ? " (fav)" : ""}`}
                       tip="The margin this team must beat (if favored) or can lose by (if the underdog) for a spread bet on them to win. The number in parentheses is the price to place that bet, in American odds."
                     />
@@ -285,7 +211,7 @@ export function OddsButton({
                 </tr>
                 <tr className={rowClassName}>
                   <td className="py-1">
-                    <Stat
+                    <ToolTipLabel
                       label={`${awayTeamName} moneyline`}
                       tip="A bet on this team to win outright, regardless of margin. American odds: a negative price is what you'd wager to win $100; a positive price is what a $100 wager would win."
                     />
@@ -304,7 +230,7 @@ export function OddsButton({
                 </tr>
                 <tr className={rowClassName}>
                   <td className="py-1">
-                    <Stat
+                    <ToolTipLabel
                       label={`${homeTeamName} moneyline`}
                       tip="A bet on this team to win outright, regardless of margin. American odds: a negative price is what you'd wager to win $100; a positive price is what a $100 wager would win."
                     />
@@ -323,7 +249,7 @@ export function OddsButton({
                 </tr>
                 <tr className={rowClassName}>
                   <td className="py-1">
-                    <Stat
+                    <ToolTipLabel
                       label="Total (O/U)"
                       tip="A bet on whether the two teams' combined final score lands over or under this number. The O/U prices in parentheses are what each side of that bet costs, in American odds."
                     />
@@ -345,11 +271,11 @@ export function OddsButton({
           </div>
 
           <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-zinc-500 dark:text-zinc-400">
-            <Stat
+            <ToolTipLabel
               label={`Moneyline result: ${formatFlag(odds?.moneylineWinner)}`}
               tip="ESPN's own settlement flag for the moneyline bet. ESPN doesn't publicly document its exact definition, and it's been observed reading 'No' even when the favorite won outright - treat it as a raw data point, not a reliable verdict."
             />
-            <Stat
+            <ToolTipLabel
               label={`Spread result: ${formatFlag(odds?.spreadWinner)}`}
               tip="ESPN's own settlement flag for the spread bet. Same caveat as the moneyline result above."
             />
