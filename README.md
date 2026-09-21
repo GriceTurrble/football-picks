@@ -55,7 +55,7 @@ just dev
 pnpm dev
 ```
 
-Open [http://localhost:3001](http://localhost:3001) to see the running site.
+Open [http://localhost:3000](http://localhost:3000) to see the running site.
 
 ### Loading a season
 
