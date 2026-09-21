@@ -1,10 +1,10 @@
 # Football Picks
 
-![screenshot of running site as of 2026-09-14](docs/screenshot-main.png)
+![screenshot of running site (as of 2026-09-21)](docs/screenshot-main.png)
 
-A personal NFL "pick 'em" tracker: pick the winner of every game each week,
-optionally add a tiebreaker score-total guess, and see it all laid out by
-season and week. It's a [Next.js](https://nextjs.org) app.
+A [NextJS](https://nextjs.org) app for a personal NFL "pick 'em" tracker:
+pick the winner of every game each week, optionally add a tiebreaker score-total guess,
+and see it all laid out by season and week.
 
 ## Features
 
@@ -21,19 +21,29 @@ season and week. It's a [Next.js](https://nextjs.org) app.
 - **Filters** for team, game status (upcoming/in-progress/final), and game
   day, plus bye-week callouts per week.
 
-- **Betting odds**, pulled from ESPN, in a modal per game: spread,
-  moneyline, and total (over/under) lines, each shown at open, current, and
-  (once available) close. Odds sync automatically for in-progress games and
-  upcoming games nearing kickoff, with a manual refresh button in the modal
-  for anytime else.
+- **Live refresh status** showing when scores were last synced from ESPN,
+  with a manual refresh button.
+
+- **Betting odds**, pulled from ESPN's public API. Current spreads, moneylines,
+  and expected score total are displayed in a separate modal per game,
+  accessible from each game list item.
+  The favored team to win is indicated, and the current spread is pulled into
+  the selector for the team within the game list.
+
+  ![modal view of game odds, spreads, moneylines, etc (as of 2026-09-21)](docs/screenshot-odds-modal.png)
 
 - **Compile view**: turns a week's picks into a plain-text list, ready to
   copy and paste elsewhere:
 
-  ![modal view for "compiled" list of winners](docs/screenshot-compiled-modal.png)
+  ![modal view for "compiled" list of winners (as of 2026-09-21)](docs/screenshot-compiled-modal.png)
 
-- **Live refresh status** showing when scores were last synced from ESPN,
-  with a manual refresh button.
+  If any teams have not yet been selected,
+  this view shows their game list items, allowing for quick entries without leaving the modal:
+
+  ![modal view for "compiled" list that is missing entries (as of 2026-09-21)](docs/screenshot-compiled-with-missing.png)
+
+  You can open Odds for a game from within this modal, as well.
+  Modals stack, so closing the Odds modal will not close the Compiled modal behind it!
 
 ## Getting Started
 
