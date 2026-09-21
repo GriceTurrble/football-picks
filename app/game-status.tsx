@@ -1,7 +1,7 @@
-import { MdAlternateEmail } from "react-icons/md";
 import type { Game } from "@/lib/types";
 import { formatKickoff } from "@/lib/format";
 import { StatusLabel } from "@/app/status-label";
+import { GameScore } from "./game-score";
 
 // Sits between the two TeamBoxes: scores (or just the @ separator, before
 // kickoff) on top, schedule details underneath. `children`, if given, renders
@@ -15,21 +15,9 @@ export function GameStatus({
   game: Game;
   children?: React.ReactNode;
 }) {
-  const showScore = game.status !== "pre";
-
   return (
-    <div className="col-span-2 flex flex-col items-center gap-0.5">
-      <div className="flex items-center gap-2 font-mono font-bold text-lg">
-        {showScore ? (
-          <>
-            <span>{game.awayScore}</span>
-            <MdAlternateEmail className="text-sm text-zinc-500 dark:text-zinc-500" />
-            <span>{game.homeScore}</span>
-          </>
-        ) : (
-          <MdAlternateEmail className="text-sm text-zinc-500 dark:text-zinc-500" />
-        )}
-      </div>
+    <div className="md:order-2 col-span-3 md:col-span-2 row-2 md:row-1 flex flex-col items-center gap-0.5">
+      <GameScore game={game} className="hidden md:flex" />
       <div className="flex flex-col gap-0.5 items-center text-center text-xs text-zinc-500 dark:text-white">
         {game.status !== "pre" && (
           <div className="flex items-center gap-1.5 font-semibold">
@@ -40,10 +28,14 @@ export function GameStatus({
               </span>
             )}
             <StatusLabel game={game} />
+            <span className="md:hidden">
+              &middot; <strong>W{game.week}</strong> &middot;{" "}
+              {formatKickoff(game.kickoff)}
+            </span>
           </div>
         )}
-        <div>
-          <strong>W{game.week}</strong> &middot; {formatKickoff(game.kickoff)}
+        <div className="hidden md:block">
+          <strong> W{game.week}</strong> &middot; {formatKickoff(game.kickoff)}
         </div>
       </div>
       {children}

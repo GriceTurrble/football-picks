@@ -32,7 +32,7 @@ export function FilterDropdown({ children }: { children: React.ReactNode }) {
   }, [open]);
 
   return (
-    <div ref={ref} className="relative shrink-0">
+    <div ref={ref} className="md:relative shrink-0">
       <button
         type="button"
         onClick={() => setOpen((value) => !value)}
@@ -41,8 +41,8 @@ export function FilterDropdown({ children }: { children: React.ReactNode }) {
         title="Filters"
         className={`rounded-md border p-1.5 text-sm transition-colors ${
           open
-            ? "border-black/8 bg-black/5 dark:border-white/[.145] dark:bg-white/5"
-            : "border-black/8 hover:bg-black/5 dark:border-white/[.145] dark:hover:bg-white/5"
+            ? "border-black/8 bg-black/5 dark:border-white/25 dark:hover:border-white/50 dark:bg-white/5"
+            : "border-black/8 hover:bg-black/5 dark:border-white/25 dark:hover:border-white/50 dark:hover:bg-white/5"
         }`}
       >
         <MdTune className="h-4.5 w-4.5" />
@@ -53,7 +53,7 @@ export function FilterDropdown({ children }: { children: React.ReactNode }) {
         // too, and since they come later in the DOM (inside GameList, below
         // this control row) they'd otherwise win the tie and paint over this
         // popover once the list scrolls under it.
-        <div className="absolute top-full left-0 z-20 mt-1 flex flex-col gap-2 rounded-md border border-black/8 bg-background p-2 shadow-lg dark:border-white/[.145]">
+        <div className="absolute top-full left-0 z-20 mt-1 flex flex-col gap-2 rounded-md border-2 border-black/8 bg-background p-2 shadow-lg dark:border-white/50">
           {children}
         </div>
       )}

@@ -11,7 +11,7 @@ export function ByeWeekItem({
 }: Pick<ByeWeek, "teamId" | "teamName">) {
   return (
     <li>
-      <div className="flex items-center justify-center gap-3 rounded-lg border p-2 border-black/8 dark:border-white/[.145]">
+      <div className="flex items-center justify-center gap-3 rounded-lg border p-2 border-black/8 dark:border-white/25">
         <Image
           src={teamLogoSrc(teamId)}
           alt={teamName}

@@ -93,7 +93,7 @@ export function CompileButton({
         title={disabled ? "Select a week to compile picks" : undefined}
         className={`shrink-0 rounded-md border px-3 py-1.5 text-sm font-medium transition-colors ${
           disabled
-            ? "cursor-not-allowed border-black/8 text-zinc-400 dark:border-white/[.145] dark:text-zinc-500"
+            ? "cursor-not-allowed border-black/8 text-zinc-400 dark:border-white/25 dark:text-zinc-500"
             : allPicked
               ? "cursor-pointer border-blue-600 bg-blue-600 text-white hover:bg-blue-700 dark:border-blue-500 dark:bg-blue-500 dark:hover:bg-blue-600"
               : "cursor-pointer border-blue-600 bg-transparent text-blue-600 hover:bg-blue-600/10 dark:border-blue-400 dark:text-blue-400 dark:hover:bg-blue-400/10"
@@ -112,14 +112,14 @@ export function CompileButton({
             <button
               type="button"
               onClick={handleCopy}
-              className="cursor-pointer rounded-md border border-black/8 px-3 py-1.5 text-sm transition-colors hover:bg-black/5 dark:border-white/[.145] dark:hover:bg-white/5"
+              className="cursor-pointer rounded-md border border-black/8 px-3 py-1.5 text-sm transition-colors hover:bg-black/5 dark:border-white/25 dark:hover:bg-white/5"
             >
               {copied ? "Copied!" : "Copy to clipboard"}
             </button>
             <button
               type="button"
               onClick={() => setOpen(false)}
-              className="cursor-pointer rounded-md border border-black/8 px-3 py-1.5 text-sm transition-colors hover:bg-black/5 dark:border-white/[.145] dark:hover:bg-white/5"
+              className="cursor-pointer rounded-md border border-black/8 px-3 py-1.5 text-sm transition-colors hover:bg-black/5 dark:border-white/25 dark:hover:bg-white/5"
             >
               Close
             </button>
@@ -159,7 +159,7 @@ export function CompileButton({
           </div>
         )}
 
-        <pre className="whitespace-pre-wrap rounded-md border border-black/8 bg-black/3 p-3 font-mono text-sm dark:border-white/[.145] dark:bg-white/3">
+        <pre className="whitespace-pre-wrap rounded-md border border-black/8 bg-black/3 p-3 font-mono text-sm dark:border-white/25 dark:bg-white/3">
           {text || "No picks yet."}
         </pre>
       </Modal>
