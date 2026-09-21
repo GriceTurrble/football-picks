@@ -21,6 +21,12 @@ season and week. It's a [Next.js](https://nextjs.org) app.
 - **Filters** for team, game status (upcoming/in-progress/final), and game
   day, plus bye-week callouts per week.
 
+- **Betting odds**, pulled from ESPN, in a modal per game: spread,
+  moneyline, and total (over/under) lines, each shown at open, current, and
+  (once available) close. Odds sync automatically for in-progress games and
+  upcoming games nearing kickoff, with a manual refresh button in the modal
+  for anytime else.
+
 - **Compile view**: turns a week's picks into a plain-text list, ready to
   copy and paste elsewhere:
 
@@ -55,7 +61,13 @@ just dev
 pnpm dev
 ```
 
-Open [http://localhost:3001](http://localhost:3001) to see the running site.
+Open [http://localhost:3000](http://localhost:3000) to see the running site.
+
+> [!NOTE]
+> If port 3000 is in use by some other process,
+> NextJS may try to automatically launch the server on port 3001, instead.
+>
+> In that case, just go there: [http://localhost:3001](http://localhost:3001)
 
 ### Loading a season
 
