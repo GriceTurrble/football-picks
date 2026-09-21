@@ -116,7 +116,7 @@ export function Modal({
         aria-modal="true"
         aria-labelledby={titleId}
         data-open={open || undefined}
-        className={`mx-auto my-8 w-full ${widthClassName} scale-95 rounded-lg border border-black/8 bg-background p-0 text-foreground transition-transform duration-300 ease-in-out data-open:scale-100 dark:border-white/[.145]`}
+        className={`mx-auto my-8 w-full ${widthClassName} scale-95 rounded-lg border border-black/8 bg-background p-0 text-foreground transition-transform duration-300 ease-in-out data-open:scale-100 dark:border-white/25`}
       >
         <div className="flex flex-col gap-3 p-4">
           {title && (

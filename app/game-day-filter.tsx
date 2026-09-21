@@ -82,7 +82,7 @@ export function GameDayFilter() {
       <div
         role="radiogroup"
         aria-label="Filter by game day"
-        className="flex items-center gap-1 rounded-md border border-black/8 p-0.5 text-sm dark:border-white/[.145]"
+        className="flex items-center gap-1 rounded-md border border-black/8 p-0.5 text-sm dark:border-white/25"
       >
         {OPTIONS.map((option) => {
           const checked = dayFilter === option.value;

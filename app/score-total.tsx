@@ -80,7 +80,7 @@ export function ScoreTotal({
       : null;
 
   return (
-    <div className="flex flex-col items-center justify-center gap-0.5 px-1">
+    <div className="col-2 md:col-5 flex flex-col items-center justify-center gap-0.5 px-1">
       {/* Same styling as the day-of-week section headers in game-list.tsx,
           just centered instead of left-aligned to suit this narrow column. */}
       <div className="text-center text-xs font-semibold tracking-wide text-zinc-500 uppercase dark:text-zinc-400">

@@ -55,7 +55,7 @@ export function ActiveFilters() {
       {chips.map((chip) => (
         <span
           key={chip.key}
-          className="flex items-center gap-1 rounded-full border border-black/8 py-0.5 pr-1 pl-2 dark:border-white/[.145]"
+          className="flex items-center gap-1 rounded-full border border-black/8 py-0.5 pr-1 pl-2 dark:border-white/25"
         >
           {chip.type}: <span className="font-semibold">{chip.label}</span>
           <button
