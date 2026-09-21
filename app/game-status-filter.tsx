@@ -62,7 +62,7 @@ export function GameStatusFilter() {
       <div
         role="radiogroup"
         aria-label="Filter by game status"
-        className="flex items-center gap-1 rounded-md border border-black/8 p-0.5 text-sm dark:border-white/[.145]"
+        className="flex items-center gap-1 rounded-md border border-black/8 p-0.5 text-sm dark:border-white/25"
       >
         {OPTIONS.map((option) => {
           const checked = statusFilter === option.value;

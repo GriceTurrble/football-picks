@@ -75,16 +75,7 @@ export function ProgressRefreshStatus({
   }
 
   return (
-    <div className="flex shrink-0 flex-col items-end gap-1 text-right text-xs text-zinc-500 dark:text-zinc-400">
-      <button
-        type="button"
-        onClick={handleManualRefresh}
-        disabled={isPending}
-        className="cursor-pointer flex items-center gap-1.5 rounded-full border border-black/8 px-3 py-1 font-medium text-zinc-700 disabled:opacity-60 dark:border-white/[.145] dark:text-zinc-200"
-      >
-        <MdRefresh className={isPending ? "animate-spin" : undefined} />
-        Refresh
-      </button>
+    <div className="flex flex-row items-center justify-end gap-1 text-right text-xs text-zinc-500 dark:text-zinc-400">
       <ToolTipLabel
         label={
           isPending
@@ -94,8 +85,17 @@ export function ProgressRefreshStatus({
               : "Not yet refreshed"
         }
         tip="Auto-refreshes from ESPN Scoreboard API every 5 min while games in progress."
-        className="hidden md:inline"
+        className="hidden sm:inline"
       />
+      <button
+        type="button"
+        onClick={handleManualRefresh}
+        disabled={isPending}
+        className="cursor-pointer flex items-center gap-1.5 rounded-full border border-black/8 px-3 py-1 font-medium text-zinc-700 disabled:opacity-60 dark:border-white/25 dark:text-zinc-200"
+      >
+        <MdRefresh className={isPending ? "animate-spin" : undefined} />
+        Refresh
+      </button>
     </div>
   );
 }

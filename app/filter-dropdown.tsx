@@ -41,8 +41,8 @@ export function FilterDropdown({ children }: { children: React.ReactNode }) {
         title="Filters"
         className={`rounded-md border p-1.5 text-sm transition-colors ${
           open
-            ? "border-black/8 bg-black/5 dark:border-white/[.145] dark:bg-white/5"
-            : "border-black/8 hover:bg-black/5 dark:border-white/[.145] dark:hover:bg-white/5"
+            ? "border-black/8 bg-black/5 dark:border-white/25 dark:hover:border-white/50 dark:bg-white/5"
+            : "border-black/8 hover:bg-black/5 dark:border-white/25 dark:hover:border-white/50 dark:hover:bg-white/5"
         }`}
       >
         <MdTune className="h-4.5 w-4.5" />

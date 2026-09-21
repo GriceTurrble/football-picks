@@ -42,9 +42,9 @@ export function ToolTipLabel({
         popover="manual"
         role="tooltip"
         style={{ left: pos.x, top: pos.y, transform: "translateX(-50%)" }}
-        className={`pointer-events-none m-0 inset-auto w-max max-w-64 rounded-md border border-black/8 bg-background px-2 py-1.5 text-xs font-normal text-foreground shadow-lg transition-opacity duration-150 ease-in-out dark:border-white/[.145] ${visible ? "opacity-100" : "opacity-0"}`}
+        className={`pointer-events-none m-0 inset-auto w-max max-w-64 rounded-md border border-black/8 bg-background px-2 py-1.5 text-xs font-normal text-foreground shadow-lg transition-opacity duration-150 ease-in-out dark:border-white/25 ${visible ? "opacity-100" : "opacity-0"}`}
       >
-        <span className="absolute -top-1 left-1/2 h-2 w-2 -translate-x-1/2 rotate-45 border-t border-l border-black/8 bg-background dark:border-white/[.145]" />
+        <span className="absolute -top-1 left-1/2 h-2 w-2 -translate-x-1/2 rotate-45 border-t border-l border-black/8 bg-background dark:border-white/25" />
         {tip}
       </span>
     </span>

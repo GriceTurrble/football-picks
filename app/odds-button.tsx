@@ -83,7 +83,7 @@ export function OddsButton({
         type="button"
         onClick={() => setOpen(true)}
         aria-label="View betting odds"
-        className="flex cursor-pointer items-center gap-1 rounded-full border border-black/8 px-2 py-0.5 text-[0.65rem] font-medium text-zinc-500 transition-colors hover:bg-black/5 dark:border-white/[.145] dark:text-zinc-400 dark:hover:bg-white/5"
+        className="flex cursor-pointer items-center gap-1 rounded-full border border-black/8 px-2 py-0.5 text-[0.65rem] font-medium text-zinc-500 transition-colors hover:bg-black/5 dark:border-white/25 dark:text-zinc-400 dark:hover:bg-white/5"
       >
         <MdBarChart /> Odds
       </button>
@@ -99,7 +99,7 @@ export function OddsButton({
               type="button"
               onClick={handleRefresh}
               disabled={isPending}
-              className="flex cursor-pointer items-center gap-1.5 rounded-full border border-black/8 px-3 py-1 text-sm font-medium text-zinc-700 disabled:opacity-60 dark:border-white/[.145] dark:text-zinc-200"
+              className="flex cursor-pointer items-center gap-1.5 rounded-full border border-black/8 px-3 py-1 text-sm font-medium text-zinc-700 disabled:opacity-60 dark:border-white/25 dark:text-zinc-200"
             >
               <MdRefresh className={isPending ? "animate-spin" : undefined} />
               Refresh
@@ -107,7 +107,7 @@ export function OddsButton({
             <button
               type="button"
               onClick={() => setOpen(false)}
-              className="cursor-pointer rounded-md border border-black/8 px-3 py-1.5 text-sm transition-colors hover:bg-black/5 dark:border-white/[.145] dark:hover:bg-white/5"
+              className="cursor-pointer rounded-md border border-black/8 px-3 py-1.5 text-sm transition-colors hover:bg-black/5 dark:border-white/25 dark:hover:bg-white/5"
             >
               Close
             </button>
