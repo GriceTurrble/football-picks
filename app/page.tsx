@@ -99,9 +99,11 @@ export default async function Home(props: PageProps<"/">) {
                   odds={odds}
                   lockOverride={lockOverride}
                 />
-                <SeasonSelect season={season} seasons={seasons} />
                 <WeekSelect season={season} weeks={weeks} week={week} />
                 <FilterDropdown>
+                  <div className="grid grid-cols-2">
+                    <SeasonSelect season={season} seasons={seasons} />
+                  </div>
                   <GameStatusFilter />
                   <GameDayFilter />
                 </FilterDropdown>

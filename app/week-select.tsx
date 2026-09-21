@@ -28,7 +28,7 @@ export function WeekSelect({ season, weeks, week }: WeekSelectProps) {
       <option value="all">All</option>
       {weeks.map((w) => (
         <option key={w} value={w}>
-          W{w}
+          Week {w}
         </option>
       ))}
     </select>

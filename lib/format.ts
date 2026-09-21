@@ -1,8 +1,9 @@
 export function formatKickoff(iso: string): string {
   return new Date(iso).toLocaleString("en-US", {
     weekday: "short",
-    month: "short",
+    month: "numeric",
     day: "numeric",
+    year: "numeric",
     hour: "numeric",
     minute: "2-digit",
   });
