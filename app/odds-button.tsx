@@ -269,17 +269,6 @@ export function OddsButton({
               </tbody>
             </table>
           </div>
-
-          <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-zinc-500 dark:text-zinc-400">
-            <ToolTipLabel
-              label={`Moneyline result: ${formatFlag(odds?.moneylineWinner)}`}
-              tip="ESPN's own settlement flag for the moneyline bet. ESPN doesn't publicly document its exact definition, and it's been observed reading 'No' even when the favorite won outright - treat it as a raw data point, not a reliable verdict."
-            />
-            <ToolTipLabel
-              label={`Spread result: ${formatFlag(odds?.spreadWinner)}`}
-              tip="ESPN's own settlement flag for the spread bet. Same caveat as the moneyline result above."
-            />
-          </div>
         </div>
       </Modal>
     </>
