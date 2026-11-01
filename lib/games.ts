@@ -1,98 +1,44 @@
-import { getDb } from "@/lib/db";
-import type { Game, GameStatus } from "@/lib/types";
+// Pure helpers over the schedule that lib/season-cache.ts holds for the
+// session. Nothing here fetches or stores anything - it only narrows the
+// arrays the cache already handed over.
+import type { Game, PickEntry } from "@/lib/types";
 
-interface GameRow {
-  id: string;
-  season: number;
-  week: number;
-  kickoff: string;
-  status: string;
-  status_detail: string | null;
-  venue: string | null;
-  home_team_id: string;
-  home_team_name: string;
-  home_score: number | null;
-  away_team_id: string;
-  away_team_name: string;
-  away_score: number | null;
+/**
+ * Seasons to offer in the picker: the current one, plus any season that has a
+ * saved pick. Picks are the only persistent data, so they're also the only
+ * way a past season can be discovered without asking a server.
+ */
+export function listSeasons(
+  currentSeason: number,
+  picks: Record<string, PickEntry>,
+): number[] {
+  const seasons = new Set<number>([currentSeason]);
+  for (const pick of Object.values(picks)) {
+    if (Number.isInteger(pick.season) && pick.season > 0) {
+      seasons.add(pick.season);
+    }
+  }
+  return [...seasons].sort((a, b) => b - a);
 }
 
-function rowToGame(row: GameRow): Game {
-  return {
-    id: row.id,
-    season: row.season,
-    week: row.week,
-    kickoff: row.kickoff,
-    status: row.status as GameStatus,
-    statusDetail: row.status_detail,
-    venue: row.venue,
-    homeTeamId: row.home_team_id,
-    homeTeamName: row.home_team_name,
-    homeScore: row.home_score,
-    awayTeamId: row.away_team_id,
-    awayTeamName: row.away_team_name,
-    awayScore: row.away_score,
-  };
+/** Week numbers present in `games`, ascending. */
+export function listWeeks(games: Game[]): number[] {
+  const weeks = new Set<number>();
+  for (const game of games) weeks.add(game.week);
+  return [...weeks].sort((a, b) => a - b);
 }
 
-// `games` only stores each side's team id - display names live in `teams` -
-// so every read here joins that table in twice (once per side) to get the
-// name back for free.
-const GAME_COLUMNS = `
-  games.id, games.season, games.week, games.kickoff, games.status,
-  games.status_detail, games.venue,
-  games.home_team_id, home.name AS home_team_name, games.home_score,
-  games.away_team_id, away.name AS away_team_name, games.away_score
-`;
-const GAME_JOIN = `
-  FROM games
-  JOIN teams AS home ON home.id = games.home_team_id
-  JOIN teams AS away ON away.id = games.away_team_id
-`;
-
-/** Seasons present in the database, most recent first. */
-export function listSeasons(): number[] {
-  const rows = getDb()
-    .prepare("SELECT DISTINCT season FROM games ORDER BY season DESC")
-    .all() as { season: number }[];
-  return rows.map((r) => r.season);
+/**
+ * Games for a season, optionally narrowed to one week. `games` arrives sorted
+ * by week then kickoff (see lib/espn.ts), and filtering preserves that order.
+ */
+export function listGames(games: Game[], week?: number): Game[] {
+  return week === undefined
+    ? games
+    : games.filter((game) => game.week === week);
 }
 
-/** Week numbers present for a season, in order. */
-export function listWeeks(season: number): number[] {
-  const rows = getDb()
-    .prepare(
-      "SELECT DISTINCT week FROM games WHERE season = ? ORDER BY week ASC",
-    )
-    .all(season) as { week: number }[];
-  return rows.map((r) => r.week);
-}
-
-/** Games for a season, optionally narrowed to a single week. */
-export function listGames(season: number, week?: number): Game[] {
-  const db = getDb();
-  const rows = (week === undefined
-    ? db
-        .prepare(
-          `SELECT ${GAME_COLUMNS} ${GAME_JOIN}
-             WHERE games.season = ?
-             ORDER BY games.week ASC, games.kickoff ASC`,
-        )
-        .all(season)
-    : db
-        .prepare(
-          `SELECT ${GAME_COLUMNS} ${GAME_JOIN}
-             WHERE games.season = ? AND games.week = ?
-             ORDER BY games.kickoff ASC`,
-        )
-        .all(season, week)) as unknown as GameRow[];
-  return rows.map(rowToGame);
-}
-
-/** A single game by its id, or null if it doesn't exist. */
-export function getGame(id: string): Game | null {
-  const row = getDb()
-    .prepare(`SELECT ${GAME_COLUMNS} ${GAME_JOIN} WHERE games.id = ?`)
-    .get(id) as GameRow | undefined;
-  return row ? rowToGame(row) : null;
+/** A single game by its ESPN event id, or null if it isn't in the schedule. */
+export function getGame(games: Game[], id: string): Game | null {
+  return games.find((game) => game.id === id) ?? null;
 }

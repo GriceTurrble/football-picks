@@ -4,7 +4,7 @@
 // one competition at a time, on demand, from the odds modal's Refresh button
 // (see lib/odds-actions.ts).
 import { getDb } from "@/lib/db";
-import { getGame } from "@/lib/games";
+import { getGame } from "@/lib/db-queries";
 import type {
   OddsSideDetail,
   OddsSideSnapshot,

@@ -1,96 +1,157 @@
-import { getDb } from "@/lib/db";
-import type { PickSelection } from "@/lib/types";
+// The user's picks: reads come from the persisted pick store
+// (lib/storage/pick-store.ts), writes go straight back to it. There is no
+// server involved, so the lock check that used to live in a Server Action
+// (lib/pick-actions.ts) happens here - against the schedule the session
+// cache has loaded.
+//
+// A row exists only while it holds a winner pick, a score-total entry, or
+// both; clearing the last of the two deletes the row.
+import { deletePick, getSnapshot, writePick } from "@/lib/storage/pick-store";
+import type { Game, PickEntry, PickSelection } from "@/lib/types";
 
-interface PickRow {
-  game_id: string;
-  team: PickSelection;
-}
-
-interface ScoreTotalRow {
-  game_id: string;
-  score_total: number;
+export function isPickSelection(value: unknown): value is PickSelection {
+  return value === "home" || value === "away";
 }
 
 /** Picks for a set of games, keyed by game id. Games with no pick are omitted. */
-export function listPicks(gameIds: string[]): Record<string, PickSelection> {
-  if (gameIds.length === 0) return {};
-
-  const placeholders = gameIds.map(() => "?").join(", ");
-  const rows = getDb()
-    .prepare(
-      `SELECT game_id, team FROM picks WHERE game_id IN (${placeholders}) AND team IS NOT NULL`,
-    )
-    .all(...gameIds) as unknown as PickRow[];
-
-  return Object.fromEntries(rows.map((row) => [row.game_id, row.team]));
+export function listPicks(
+  picks: Record<string, PickEntry>,
+  gameIds: string[],
+): Record<string, PickSelection> {
+  const result: Record<string, PickSelection> = {};
+  for (const gameId of gameIds) {
+    const team = picks[gameId]?.team;
+    if (team) result[gameId] = team;
+  }
+  return result;
 }
 
 /**
  * Score-total tiebreaker entries for a set of games, keyed by game id.
  * Games with no entry are omitted.
  */
-export function listScoreTotals(gameIds: string[]): Record<string, number> {
-  if (gameIds.length === 0) return {};
-
-  const placeholders = gameIds.map(() => "?").join(", ");
-  const rows = getDb()
-    .prepare(
-      `SELECT game_id, score_total FROM picks WHERE game_id IN (${placeholders}) AND score_total IS NOT NULL`,
-    )
-    .all(...gameIds) as unknown as ScoreTotalRow[];
-
-  return Object.fromEntries(rows.map((row) => [row.game_id, row.score_total]));
+export function listScoreTotals(
+  picks: Record<string, PickEntry>,
+  gameIds: string[],
+): Record<string, number> {
+  const result: Record<string, number> = {};
+  for (const gameId of gameIds) {
+    const total = picks[gameId]?.scoreTotal;
+    if (total !== undefined) result[gameId] = total;
+  }
+  return result;
 }
 
-/** Sets (or replaces) the pick for a game, leaving any score-total entry as-is. */
-export function setPick(gameId: string, team: PickSelection): void {
-  getDb()
-    .prepare(
-      `INSERT INTO picks (game_id, team) VALUES (?, ?)
-       ON CONFLICT (game_id) DO UPDATE SET team = excluded.team, updated_at = datetime('now')`,
-    )
-    .run(gameId, team);
+function currentRow(gameId: string): PickEntry | undefined {
+  return getSnapshot().picks[gameId];
+}
+
+// Picks lock once a game kicks off - there's no point (or fairness) in
+// letting a pick change once the outcome is already in motion. The Lock
+// Override toggle lifts this for any game that's already started, in-progress
+// or final. Client-side only, so this is a guard rail, not an enforcement
+// mechanism: the only adversary is the person using the app.
+function assertUnlocked(game: Game, override: boolean): void {
+  if (game.status !== "pre" && !override) {
+    throw new Error("Picks are locked once a game starts");
+  }
+}
+
+function pickedTeamName(game: Game, team: PickSelection): string {
+  return team === "home" ? game.homeTeamName : game.awayTeamName;
+}
+
+// Writes the row, or deletes it once neither a pick nor a score total is
+// left. `season` and `teamName` are denormalized so the compiled-picks view
+// keeps working with no schedule loaded - see lib/types.ts#PickEntry.
+function save(game: Game, fields: Partial<PickEntry>): void {
+  const entry: PickEntry = {
+    gameId: game.id,
+    season: game.season,
+    updatedAt: new Date().toISOString(),
+    ...fields,
+  };
+
+  if (entry.team === undefined && entry.scoreTotal === undefined) {
+    deletePick(entry.gameId);
+    return;
+  }
+  writePick(entry);
+}
+
+/** Sets which team the user is picking to win a game. */
+export function setPick(
+  game: Game,
+  team: PickSelection,
+  override: boolean,
+): void {
+  if (!isPickSelection(team)) throw new Error("Invalid team selection");
+  assertUnlocked(game, override);
+
+  save(game, {
+    team,
+    teamName: pickedTeamName(game, team),
+    scoreTotal: currentRow(game.id)?.scoreTotal,
+  });
+}
+
+/** Removes a game's winner pick, leaving any score-total entry in place. */
+export function clearPick(game: Game, override: boolean): void {
+  assertUnlocked(game, override);
+  save(game, { scoreTotal: currentRow(game.id)?.scoreTotal });
+}
+
+/** Sets (or replaces) a game's score-total tiebreaker entry. */
+export function setScoreTotal(
+  game: Game,
+  total: number,
+  override: boolean,
+): void {
+  assertUnlocked(game, override);
+
+  const existing = currentRow(game.id);
+  save(game, {
+    team: existing?.team,
+    teamName: existing?.teamName,
+    scoreTotal: total,
+  });
+}
+
+/** Removes a game's score-total entry, leaving any winner pick in place. */
+export function clearScoreTotal(game: Game, override: boolean): void {
+  assertUnlocked(game, override);
+
+  const existing = currentRow(game.id);
+  save(game, { team: existing?.team, teamName: existing?.teamName });
 }
 
 /**
- * Removes the pick for a game, if one exists. Leaves a score-total entry in
- * place; only drops the row entirely once neither field has anything left.
+ * Parses and saves a score-total entry straight from the input's text.
+ * Empty input (or 0) clears the entry; anything else must be a whole,
+ * non-negative number - the UI only accepts digits, so an error here means
+ * something bypassed it.
  */
-export function clearPick(gameId: string): void {
-  const db = getDb();
-  db.prepare(
-    "UPDATE picks SET team = NULL, updated_at = datetime('now') WHERE game_id = ?",
-  ).run(gameId);
-  pruneEmptyRow(db, gameId);
-}
+export function updateScoreTotal(
+  game: Game,
+  rawValue: string,
+  override: boolean,
+): void {
+  assertUnlocked(game, override);
 
-/** Sets (or replaces) the score-total entry for a game, leaving any pick as-is. */
-export function setScoreTotal(gameId: string, total: number): void {
-  getDb()
-    .prepare(
-      `INSERT INTO picks (game_id, score_total) VALUES (?, ?)
-       ON CONFLICT (game_id) DO UPDATE SET score_total = excluded.score_total, updated_at = datetime('now')`,
-    )
-    .run(gameId, total);
-}
+  const trimmed = rawValue.trim();
+  if (trimmed === "") {
+    clearScoreTotal(game, override);
+    return;
+  }
 
-/**
- * Removes the score-total entry for a game, if one exists. Leaves a pick in
- * place; only drops the row entirely once neither field has anything left.
- */
-export function clearScoreTotal(gameId: string): void {
-  const db = getDb();
-  db.prepare(
-    "UPDATE picks SET score_total = NULL, updated_at = datetime('now') WHERE game_id = ?",
-  ).run(gameId);
-  pruneEmptyRow(db, gameId);
-}
+  const total = Number(trimmed);
+  if (!Number.isInteger(total) || total < 0) {
+    throw new Error("Score total must be a positive whole number");
+  }
 
-// A picks row exists purely so *something* - a pick, a score total, or both
-// - has somewhere to live. Once a clear leaves both NULL, there's nothing
-// left to keep the row around for.
-function pruneEmptyRow(db: ReturnType<typeof getDb>, gameId: string): void {
-  db.prepare(
-    "DELETE FROM picks WHERE game_id = ? AND team IS NULL AND score_total IS NULL",
-  ).run(gameId);
+  if (total === 0) {
+    clearScoreTotal(game, override);
+  } else {
+    setScoreTotal(game, total, override);
+  }
 }

@@ -1,13 +1,13 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { getGame } from "@/lib/games";
 import {
   clearPick as removePick,
   clearScoreTotal,
+  getGame,
   setPick,
   setScoreTotal,
-} from "@/lib/picks";
+} from "@/lib/db-queries";
 import type { PickSelection } from "@/lib/types";
 
 function isPickSelection(value: unknown): value is PickSelection {

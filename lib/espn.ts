@@ -181,12 +181,16 @@ export async function fetchWeek(
     if (game) games.push(game);
   }
 
-  const byes: ByeWeek[] = (data.week?.teamsOnBye ?? []).map((team) => ({
-    season,
-    week,
-    teamId: team.abbreviation,
-    teamName: team.displayName,
-  }));
+  const byes: ByeWeek[] = (data.week?.teamsOnBye ?? [])
+    .map((team) => ({
+      season,
+      week,
+      teamId: team.abbreviation,
+      teamName: team.displayName,
+    }))
+    // ESPN lists byes in its own order; sort like deriveByes does so the two
+    // paths render identically.
+    .sort((a, b) => a.teamName.localeCompare(b.teamName));
 
   return { games: games.sort(compareGames), byes };
 }

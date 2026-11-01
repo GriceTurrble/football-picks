@@ -19,7 +19,7 @@
 // syncSeason runs - so a game that's still "in progress" as of that snapshot
 // gets one last odds sync in the very tick that its score sync flips it to
 // Final, and is correctly excluded from then on.
-import { listSeasons, listGames } from "@/lib/games";
+import { listSeasons, listGames } from "@/lib/db-queries";
 import { syncSeason } from "@/lib/espn-sync";
 import { syncOdds } from "@/lib/odds-sync";
 import { needsSync } from "@/lib/sync-window";

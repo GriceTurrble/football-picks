@@ -1,7 +1,13 @@
-import { listGames, listSeasons, listWeeks } from "@/lib/games";
-import { listByeWeeks } from "@/lib/bye-weeks";
-import { listPicks, listScoreTotals } from "@/lib/picks";
-import { listOdds } from "@/lib/odds";
+// SQLite-backed queries from the pre-client-only app; see lib/db-queries.ts.
+import {
+  listByeWeeks,
+  listGames,
+  listOdds,
+  listPicks,
+  listScoreTotals,
+  listSeasons,
+  listWeeks,
+} from "@/lib/db-queries";
 import { anyNeedSync } from "@/lib/sync-window";
 import { getSeasonLastSyncedAt } from "@/lib/sync-status";
 import { SeasonSelect } from "@/app/season-select";
