@@ -1,11 +1,11 @@
-// Temporary bridge: the SQLite-backed queries the app still runs on while the
-// client-only rewrite lands (app/page.tsx, lib/pick-actions.ts,
-// lib/game-refresh.ts, lib/odds-sync.ts). These are the old contents of
-// lib/games.ts, lib/bye-weeks.ts, lib/picks.ts, and lib/odds.ts, which now
-// hold the live/ESPN versions instead.
+// Temporary bridge: the SQLite-backed queries that lib/game-refresh.ts and
+// lib/odds-sync.ts still run on server start, left over from the pre-client
+// app. These are the old contents of lib/games.ts, lib/bye-weeks.ts,
+// lib/picks.ts, and lib/odds.ts, which now hold the live/ESPN versions
+// instead.
 //
-// This whole file goes away with the rest of the database once the page and
-// its actions are client components.
+// This whole file goes away with the rest of the database once the background
+// sync loop does.
 import { getDb } from "@/lib/db";
 import type {
   ByeWeek,

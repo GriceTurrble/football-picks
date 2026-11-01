@@ -18,9 +18,11 @@ export function WeekSelect({ season, weeks, week }: WeekSelectProps) {
       value={week ?? "all"}
       onChange={(event) => {
         const value = event.target.value;
+        // "All" has to be said explicitly: an absent `week` means "whatever
+        // week ESPN says is current" for the current season.
         const query =
           value === "all"
-            ? `season=${season}`
+            ? `season=${season}&week=all`
             : `season=${season}&week=${value}`;
         router.push(`/?${query}`);
       }}

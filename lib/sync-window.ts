@@ -1,7 +1,7 @@
-// Shared between the server-side background sync loop
-// (lib/game-refresh.ts) and app/page.tsx, which uses it to decide whether
-// to let ProgressRefreshStatus auto-tick at all: whether ESPN's data for a
-// set of games is likely still changing right now.
+// Shared between the server-side background sync loop (lib/game-refresh.ts)
+// and app/picks-page.tsx, which uses it to decide whether to let
+// ProgressRefreshStatus auto-tick at all: whether ESPN's data for a set of
+// games is likely still changing right now.
 import type { Game } from "@/lib/types";
 import { SYNC_WINDOW_MS } from "@/lib/constants";
 

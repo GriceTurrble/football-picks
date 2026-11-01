@@ -1,8 +1,11 @@
 // Pulls betting odds for a single game from ESPN's public (unofficial,
 // unauthenticated) core sports API and upserts it into the local database.
 // Unlike lib/espn-sync.ts, this isn't run in bulk on a timer - it's fetched
-// one competition at a time, on demand, from the odds modal's Refresh button
-// (see lib/odds-actions.ts).
+// one competition at a time, on demand.
+//
+// The browser no longer uses this: the page fetches odds directly and keeps
+// them in memory for the session (lib/odds.ts). This remains only for the
+// server-side refresh loop until the database goes away.
 import { getDb } from "@/lib/db";
 import { getGame } from "@/lib/db-queries";
 import type {
@@ -139,12 +142,12 @@ const upsertOdds = (gameId: string, item: EspnOddsItem, fetchedAt: string) =>
       fetchedAt,
     );
 
-// Both the background refresh loop (lib/game-refresh.ts) and the modal's
-// manual Refresh button (lib/odds-actions.ts) funnel through syncOdds, so
-// logging here - rather than at each call site - is what gets every odds
-// fetch logged regardless of who triggered it. Team names come from our own
-// DB (already populated by lib/espn-sync.ts) rather than the odds response
-// itself, which only references teams by an ESPN resource URL.
+// Everything that fetches odds on the server (the background refresh loop in
+// lib/game-refresh.ts) funnels through syncOdds, so logging here - rather
+// than at each call site - is what gets every odds fetch logged. Team names
+// come from our own DB (already populated by lib/espn-sync.ts) rather than
+// the odds response itself, which only references teams by an ESPN resource
+// URL.
 function describeGame(gameId: string): string {
   const game = getGame(gameId);
   return game
@@ -155,8 +158,7 @@ function describeGame(gameId: string): string {
 /**
  * Fetches odds for a single game from ESPN and upserts it into the local
  * database. Returns true if odds were found and stored, false if ESPN has
- * nothing for this game (yet, or ever) - the modal shows placeholders for
- * whatever's still missing either way.
+ * nothing for this game (yet, or ever).
  */
 export async function syncOdds(gameId: string): Promise<boolean> {
   const item = await fetchOddsItem(gameId);

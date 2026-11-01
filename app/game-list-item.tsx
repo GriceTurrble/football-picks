@@ -1,15 +1,17 @@
-import type { Game, Odds, PickSelection } from "@/lib/types";
+"use client";
+
+import type { Game, PickSelection } from "@/lib/types";
 import { TeamBox } from "@/app/team-box";
 import { GameStatus } from "@/app/game-status";
 import { ScoreTotal } from "@/app/score-total";
 import { OddsButton } from "@/app/odds-button";
 import { GameScore } from "@/app/game-score";
+import { useOdds } from "@/lib/use-odds";
 
 export function GameListItem({
   game,
   pick,
   scoreTotal,
-  odds,
   lockOverride = false,
   showOddsButton = true,
 }: {
@@ -17,8 +19,6 @@ export function GameListItem({
   pick?: PickSelection;
   /** The user's score-total tiebreaker entry for this game, if any. */
   scoreTotal?: number;
-  /** This game's betting odds, if any have been fetched. */
-  odds?: Odds | null;
   lockOverride?: boolean;
   /**
    * False when this GameListItem is itself being rendered inside the odds
@@ -27,6 +27,10 @@ export function GameListItem({
    */
   showOddsButton?: boolean;
 }) {
+  // Rendering is what asks for this game's odds; lib/odds.ts caps how many
+  // requests run at once and keeps the result for the session.
+  const { odds } = useOdds(game.id);
+
   // Picks lock once a game kicks off - there's no point (or fairness) in
   // letting a pick change once the outcome is already in motion. The Lock
   // Override toggle lifts this for any game that's already started,
@@ -58,10 +62,8 @@ export function GameListItem({
           children need their own width utility classes. */}
       <div className="grid grid-cols-3 md:grid-cols-5 items-stretch gap-2 rounded-lg p-2 border-2 border-black/8 dark:border-white/25">
         <TeamBox
-          gameId={game.id}
+          game={game}
           team="away"
-          abbr={game.awayTeamId}
-          name={game.awayTeamName}
           selected={pick === "away"}
           won={winner === "away"}
           disabled={locked}
@@ -83,10 +85,8 @@ export function GameListItem({
           )}
         </GameStatus>
         <TeamBox
-          gameId={game.id}
+          game={game}
           team="home"
-          abbr={game.homeTeamId}
-          name={game.homeTeamName}
           selected={pick === "home"}
           won={winner === "home"}
           disabled={locked}

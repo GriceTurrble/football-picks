@@ -221,11 +221,28 @@ export function ensureOdds(gameIds: string[]): void {
 
 /**
  * Bypasses the cache and re-fetches one game's odds - the odds modal's
- * Refresh button. Queued behind nothing, since it's a single deliberate
- * request rather than part of filling in a whole week.
+ * Refresh button. Named singular because it's a single deliberate request
+ * rather than part of filling in a whole week.
  */
 export function refreshOdds(gameId: string): Promise<Odds | null> {
   cache.delete(gameId);
   emit();
   return load(gameId);
+}
+
+/**
+ * Re-fetches odds for a set of games through the normal concurrency queue -
+ * used by the page's periodic refresh for games in the sync window. Games
+ * already in flight are left alone; everything else is dropped from the
+ * cache and queued again.
+ */
+export function refreshOddsFor(gameIds: string[]): void {
+  const stale: string[] = [];
+  for (const gameId of gameIds) {
+    cache.delete(gameId);
+    if (!inFlight.has(gameId)) stale.push(gameId);
+  }
+  if (stale.length === 0) return;
+  emit();
+  ensureOdds(stale);
 }

@@ -8,6 +8,7 @@ import {
   loadSeason,
   refreshSeason,
   subscribe,
+  type SeasonScope,
   type SeasonStatus,
 } from "@/lib/season-cache";
 
@@ -31,26 +32,31 @@ export interface UseSeasonDataResult {
  * hydration renders both see the empty status, and React swaps in cached data
  * as soon as the client reads it - no hydration mismatch, no effect-driven
  * state juggling.
+ *
+ * `enabled` holds the load back until the caller is ready - the page uses it
+ * to wait for the persisted picks, which decide the default season.
  */
 export function useSeasonData(
   season: number,
-  week?: number,
+  scope: SeasonScope,
+  enabled = true,
 ): UseSeasonDataResult {
   const status: SeasonStatus = useSyncExternalStore(
     subscribe,
-    () => getSeasonStatus(season, week),
+    () => getSeasonStatus(season, scope),
     getServerSeasonStatus,
   );
 
   useEffect(() => {
-    void loadSeason(season, week);
-  }, [season, week]);
+    if (!enabled) return;
+    void loadSeason(season, scope);
+  }, [season, scope, enabled]);
 
   const [refreshing, setRefreshing] = useState(false);
   const refresh = useCallback(() => {
     setRefreshing(true);
-    void refreshSeason(season, week).finally(() => setRefreshing(false));
-  }, [season, week]);
+    void refreshSeason(season, scope).finally(() => setRefreshing(false));
+  }, [season, scope]);
 
   return {
     data: status.data,

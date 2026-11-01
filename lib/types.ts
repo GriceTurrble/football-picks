@@ -61,6 +61,12 @@ export interface ByeWeek {
 export interface SeasonData {
   games: Game[];
   byes: ByeWeek[];
+  /**
+   * The week this slice covers, or null for a whole-season payload. Set by
+   * the fetch and from the session cache, so the page can label the current
+   * week even when the URL didn't name one.
+   */
+  week: number | null;
 }
 
 /** A price in every format ESPN's odds API expresses it in. */

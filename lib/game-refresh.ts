@@ -1,19 +1,18 @@
-// Background loop that keeps already-seeded seasons up to date. It doesn't
-// discover new seasons on its own - run `pnpm seed [season]` once to load a
-// season for the first time (see app/page.tsx's empty state) - it just
+// Background loop that keeps the local database up to date while the app
+// still runs on it. It doesn't discover new seasons on its own - run
+// `pnpm seed [season]` once to load a season for the first time - it just
 // re-pulls kickoff times, statuses, scores, and odds for whatever seasons
-// already exist in the database.
+// already exist.
 //
 // It ticks every REFRESH_INTERVAL_MS regardless, but only actually calls
 // ESPN when needsSync says a game is likely to have changed - in progress,
 // or within SYNC_WINDOW_MS of kickoff (see lib/sync-window.ts). `force`
 // bypasses that check for the season's score/status sync only - used for the
-// very first run on server start and for manual refreshes (see
-// lib/refresh-actions.ts) - so a fresh server (or a manual "Refresh") always
-// re-checks every season's scores regardless of staleness. Odds are a much
-// bigger cost (one ESPN request per game, versus one per season for scores)
-// and stay window-gated even then: a game months out or long since Final has
-// nothing new to fetch, force or not.
+// very first run on server start - so a fresh server always re-checks every
+// season's scores regardless of staleness. Odds are a much bigger cost (one
+// ESPN request per game, versus one per season for scores) and stay
+// window-gated even then: a game months out or long since Final has nothing
+// new to fetch, force or not.
 //
 // Both checks read `games` as it stood at the very start of the tick, before
 // syncSeason runs - so a game that's still "in progress" as of that snapshot

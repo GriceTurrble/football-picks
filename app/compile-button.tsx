@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { Game, Odds, PickSelection } from "@/lib/types";
+import type { Game, PickSelection } from "@/lib/types";
 import { Modal } from "@/app/modal";
 import { GameListItem } from "@/app/game-list-item";
 import { LockOverride } from "@/app/lock-override";
@@ -45,7 +45,6 @@ export function CompileButton({
   games,
   picks,
   scoreTotals,
-  odds,
   lockOverride,
 }: {
   season: number;
@@ -53,7 +52,6 @@ export function CompileButton({
   games: Game[];
   picks: Record<string, PickSelection>;
   scoreTotals: Record<string, number>;
-  odds: Record<string, Odds>;
   lockOverride: boolean;
 }) {
   const [open, setOpen] = useState(false);
@@ -65,10 +63,10 @@ export function CompileButton({
   const disabled = week === undefined;
 
   // Recomputed from props on every render, so a pick made from the
-  // GameListItem below - which round-trips through a Server Action and
-  // revalidatePath("/") (see lib/pick-actions.ts) - flows back down as fresh
-  // `picks` and immediately drops that game out of `missing` and into `text`,
-  // with no separate client-side state to keep in sync.
+  // GameListItem below - which writes straight to the pick store the page
+  // subscribes to - flows back down as fresh `picks` and immediately drops
+  // that game out of `missing` and into `text`, with no separate client-side
+  // state to keep in sync.
   const missing = games.filter((game) => !picks[game.id]);
   const allPicked = missing.length === 0;
   const text = buildCompiledText(games, picks, scoreTotals);
@@ -151,7 +149,6 @@ export function CompileButton({
                   game={game}
                   pick={picks[game.id]}
                   scoreTotal={scoreTotals[game.id]}
-                  odds={odds[game.id]}
                   lockOverride={lockOverride}
                 />
               ))}

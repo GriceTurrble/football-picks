@@ -4,6 +4,16 @@
 import type { Game, PickEntry } from "@/lib/types";
 
 /**
+ * The NFL season a date belongs to. A season starts in September and runs
+ * through the Super Bowl in February, so January and February still belong to
+ * the previous calendar year's season - without this, a January visit would
+ * default to a season that hasn't started yet.
+ */
+export function currentSeasonYear(now: Date = new Date()): number {
+  return now.getMonth() <= 1 ? now.getFullYear() - 1 : now.getFullYear();
+}
+
+/**
  * Seasons to offer in the picker: the current one, plus any season that has a
  * saved pick. Picks are the only persistent data, so they're also the only
  * way a past season can be discovered without asking a server.

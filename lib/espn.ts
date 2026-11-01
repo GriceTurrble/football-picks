@@ -166,33 +166,48 @@ function deriveByes(season: number, games: Game[]): ByeWeek[] {
   );
 }
 
-/** Fetches one regular-season week, with ESPN's own bye list. */
+/**
+ * Fetches one regular-season week, with ESPN's own bye list.
+ *
+ * Omitting `week` asks ESPN for "whatever week is current". That answers in
+ * one request (~150 KB) instead of the two a whole season costs - but ESPN
+ * ignores `year` in that case and always replies with the current real-world
+ * season, so only use it for the season happening now.
+ */
 export async function fetchWeek(
   season: number,
-  week: number,
+  week?: number,
 ): Promise<SeasonData> {
-  const url = `${SCOREBOARD_URL}?seasontype=${REGULAR_SEASON}&year=${season}&week=${week}`;
+  const weekParam = week === undefined ? "" : `&week=${week}`;
+  const url = `${SCOREBOARD_URL}?seasontype=${REGULAR_SEASON}&year=${season}${weekParam}`;
   const data = await fetchJson<EspnScoreboardResponse>(url);
+
+  // The per-week endpoint echoes the week back; the no-week one only says
+  // which week it picked in `data.week.number`.
+  const resolvedWeek = week ?? data.week?.number ?? null;
 
   const games: Game[] = [];
   for (const event of data.events ?? []) {
     if (!belongsToRegularSeason(event, season)) continue;
-    const game = toGame(event, season, week);
+    const game = toGame(event, season, resolvedWeek ?? undefined);
     if (game) games.push(game);
   }
 
-  const byes: ByeWeek[] = (data.week?.teamsOnBye ?? [])
-    .map((team) => ({
-      season,
-      week,
-      teamId: team.abbreviation,
-      teamName: team.displayName,
-    }))
-    // ESPN lists byes in its own order; sort like deriveByes does so the two
-    // paths render identically.
-    .sort((a, b) => a.teamName.localeCompare(b.teamName));
+  const byes: ByeWeek[] =
+    resolvedWeek === null
+      ? []
+      : (data.week?.teamsOnBye ?? [])
+          .map((team) => ({
+            season,
+            week: resolvedWeek,
+            teamId: team.abbreviation,
+            teamName: team.displayName,
+          }))
+          // ESPN lists byes in its own order; sort like deriveByes does so
+          // the two paths render identically.
+          .sort((a, b) => a.teamName.localeCompare(b.teamName));
 
-  return { games: games.sort(compareGames), byes };
+  return { games: games.sort(compareGames), byes, week: resolvedWeek };
 }
 
 async function fetchCalendarYear(
@@ -240,5 +255,5 @@ export async function fetchSeason(season: number): Promise<SeasonData> {
   }
 
   const games = [...byId.values()].sort(compareGames);
-  return { games, byes: deriveByes(season, games) };
+  return { games, byes: deriveByes(season, games), week: null };
 }

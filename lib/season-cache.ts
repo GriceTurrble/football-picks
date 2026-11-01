@@ -10,7 +10,16 @@
 import type { SeasonData } from "@/lib/types";
 import { fetchSeason, fetchWeek, REGULAR_SEASON_WEEKS } from "@/lib/espn";
 
-const SESSION_PREFIX = "football-picks:season:v1:";
+/**
+ * Which slice of a season to load:
+ *  - a number: that regular-season week
+ *  - "current": whichever week ESPN says is happening now (one request)
+ *  - "all": the whole regular season (two requests; every week view after
+ *    that is a cache hit)
+ */
+export type SeasonScope = number | "current" | "all";
+
+const SESSION_PREFIX = "football-picks:season:v2:";
 
 // Matches the refresh cadence: inside this window a cached schedule is served
 // as-is, so switching weeks and navigating doesn't refetch; past it, the next
@@ -22,7 +31,7 @@ interface CacheEntry {
   fetchedAt: number;
 }
 
-/** What a subscriber sees for one season (or one week of it). */
+/** What a subscriber sees for one season (or one slice of it). */
 export interface SeasonStatus {
   /** Null until something has been cached or fetched. */
   data: SeasonData | null;
@@ -42,8 +51,18 @@ const inFlight = new Map<string, Promise<void>>();
 const statuses = new Map<string, SeasonStatus>();
 const listeners = new Set<() => void>();
 
-function cacheKey(season: number, week?: number): string {
-  return week === undefined ? `${season}` : `${season}:w${week}`;
+function cacheKey(season: number, scope: SeasonScope): string {
+  if (scope === "all") return `${season}`;
+  if (scope === "current") return `${season}:current`;
+  return `${season}:w${scope}`;
+}
+
+function weekKeys(season: number): string[] {
+  const keys: string[] = [];
+  for (let week = 1; week <= REGULAR_SEASON_WEEKS; week++) {
+    keys.push(cacheKey(season, week));
+  }
+  return keys;
 }
 
 function emit(): void {
@@ -58,7 +77,8 @@ function isCacheEntry(value: unknown): value is CacheEntry {
     typeof entry.data === "object" &&
     entry.data !== null &&
     Array.isArray(entry.data.games) &&
-    Array.isArray(entry.data.byes)
+    Array.isArray(entry.data.byes) &&
+    (entry.data.week === null || typeof entry.data.week === "number")
   );
 }
 
@@ -119,37 +139,42 @@ function getFreshEntry(key: string): CacheEntry | null {
   return entry && isFresh(entry) ? entry : null;
 }
 
+/** A whole-season entry can answer for any week it contains. */
 function coversWeek(data: SeasonData, week: number): boolean {
-  return data.games.some((game) => game.week === week);
+  return (
+    data.week === null &&
+    (data.games.some((game) => game.week === week) ||
+      data.byes.some((bye) => bye.week === week))
+  );
 }
 
 function sliceWeek(data: SeasonData, week: number): SeasonData {
   return {
     games: data.games.filter((game) => game.week === week),
     byes: data.byes.filter((bye) => bye.week === week),
+    week,
   };
 }
 
 // A week view is served from the whole-season entry when there is one, so a
-// season-wide load makes every week instant.
-function peekEntry(season: number, week?: number): CacheEntry | null {
-  if (week !== undefined) {
-    const full = getEntry(cacheKey(season));
-    if (full && coversWeek(full.data, week)) {
-      return { data: sliceWeek(full.data, week), fetchedAt: full.fetchedAt };
+// season-wide load makes every week instant; a "current" fetch answers for
+// the week it resolved to as well.
+function peekEntry(season: number, scope: SeasonScope): CacheEntry | null {
+  if (typeof scope === "number") {
+    const full = getEntry(cacheKey(season, "all"));
+    if (full && coversWeek(full.data, scope)) {
+      return { data: sliceWeek(full.data, scope), fetchedAt: full.fetchedAt };
     }
+
+    const current = getEntry(cacheKey(season, "current"));
+    if (current && current.data.week === scope) return current;
   }
-  return getEntry(cacheKey(season, week));
+  return getEntry(cacheKey(season, scope));
 }
 
-function freshEntry(season: number, week?: number): CacheEntry | null {
-  if (week !== undefined) {
-    const full = getFreshEntry(cacheKey(season));
-    if (full && coversWeek(full.data, week)) {
-      return { data: sliceWeek(full.data, week), fetchedAt: full.fetchedAt };
-    }
-  }
-  return getFreshEntry(cacheKey(season, week));
+function freshEntry(season: number, scope: SeasonScope): CacheEntry | null {
+  const entry = peekEntry(season, scope);
+  return entry && isFresh(entry) ? entry : null;
 }
 
 function storeEntry(key: string, entry: CacheEntry): void {
@@ -164,21 +189,20 @@ function dropEntry(key: string): void {
 
 function setStatus(
   season: number,
-  week: number | undefined,
+  scope: SeasonScope,
   status: SeasonStatus,
 ): void {
-  statuses.set(cacheKey(season, week), status);
+  statuses.set(cacheKey(season, scope), status);
   emit();
 }
 
 // Writing a whole season makes every per-week status derived from the old
 // copy invalid; the next read re-derives them from the new entry.
-function invalidateStatus(season: number, week?: number): void {
-  statuses.delete(cacheKey(season, week));
-  if (week === undefined) {
-    for (let w = 1; w <= REGULAR_SEASON_WEEKS; w++) {
-      statuses.delete(cacheKey(season, w));
-    }
+function invalidateStatus(season: number, scope: SeasonScope): void {
+  statuses.delete(cacheKey(season, scope));
+  if (scope === "all") {
+    for (const key of weekKeys(season)) statuses.delete(key);
+    statuses.delete(cacheKey(season, "current"));
   }
 }
 
@@ -191,16 +215,19 @@ export function subscribe(listener: () => void): () => void {
 }
 
 /**
- * The current status for one season (or week), without fetching. Stable
+ * The current status for one season (or slice), without fetching. Stable
  * between changes - a cached week view is derived once and reused - which is
  * what useSyncExternalStore requires.
  */
-export function getSeasonStatus(season: number, week?: number): SeasonStatus {
-  const key = cacheKey(season, week);
+export function getSeasonStatus(
+  season: number,
+  scope: SeasonScope,
+): SeasonStatus {
+  const key = cacheKey(season, scope);
   const existing = statuses.get(key);
   if (existing) return existing;
 
-  const cached = peekEntry(season, week);
+  const cached = peekEntry(season, scope);
   if (!cached) return EMPTY_STATUS;
 
   const status: SeasonStatus = {
@@ -218,19 +245,28 @@ export function getServerSeasonStatus(): SeasonStatus {
 }
 
 /** Cached data, stale or not, without touching the network or React. */
-export function peekSeason(season: number, week?: number): SeasonData | null {
-  return peekEntry(season, week)?.data ?? null;
+export function peekSeason(
+  season: number,
+  scope: SeasonScope,
+): SeasonData | null {
+  return peekEntry(season, scope)?.data ?? null;
+}
+
+function fetchFor(season: number, scope: SeasonScope): Promise<SeasonData> {
+  if (scope === "all") return fetchSeason(season);
+  if (scope === "current") return fetchWeek(season);
+  return fetchWeek(season, scope);
 }
 
 function run(
   season: number,
-  week: number | undefined,
+  scope: SeasonScope,
   force: boolean,
 ): Promise<void> {
   if (!force) {
-    const cached = freshEntry(season, week);
+    const cached = freshEntry(season, scope);
     if (cached) {
-      setStatus(season, week, {
+      setStatus(season, scope, {
         data: cached.data,
         error: null,
         fetchedAt: cached.fetchedAt,
@@ -239,30 +275,36 @@ function run(
     }
   }
 
-  const key = cacheKey(season, week);
+  const key = cacheKey(season, scope);
   const pending = inFlight.get(key);
   if (pending) return pending;
 
   // Keep whatever is already showing while re-fetching; just clear the error.
-  const previous = getSeasonStatus(season, week);
-  setStatus(season, week, {
+  const previous = getSeasonStatus(season, scope);
+  setStatus(season, scope, {
     data: previous.data,
     error: null,
     fetchedAt: previous.fetchedAt,
   });
 
-  const request = (
-    week === undefined ? fetchSeason(season) : fetchWeek(season, week)
-  )
+  const request = fetchFor(season, scope)
     .then((data) => {
       const fetchedAt = Date.now();
-      storeEntry(key, { data, fetchedAt });
-      invalidateStatus(season, week);
-      setStatus(season, week, { data, error: null, fetchedAt });
+      const entry = { data, fetchedAt };
+      storeEntry(key, entry);
+
+      // A "current" fetch also answers for the week it resolved to.
+      if (scope === "current" && data.week !== null) {
+        storeEntry(cacheKey(season, data.week), entry);
+        invalidateStatus(season, data.week);
+      }
+
+      invalidateStatus(season, scope);
+      setStatus(season, scope, { data, error: null, fetchedAt });
     })
     .catch((reason: unknown) => {
-      setStatus(season, week, {
-        ...getSeasonStatus(season, week),
+      setStatus(season, scope, {
+        ...getSeasonStatus(season, scope),
         error: reason instanceof Error ? reason.message : String(reason),
       });
     })
@@ -277,25 +319,38 @@ function run(
 /**
  * Loads a season's schedule into the cache: cached while fresh, a whole-season
  * entry sliced down when only one week was asked for, or a fresh fetch.
- * Concurrent callers for the same season/week share one request.
+ * Concurrent callers for the same season/scope share one request.
  */
-export function loadSeason(season: number, week?: number): Promise<void> {
-  return run(season, week, false);
+export function loadSeason(season: number, scope: SeasonScope): Promise<void> {
+  return run(season, scope, false);
 }
 
 /**
- * Bypasses the cache and re-fetches from ESPN. Refreshing a whole season also
- * drops that season's per-week entries, so a later week view can't be served
- * data from before the refresh.
+ * Bypasses the cache and re-fetches from ESPN.
+ *
+ * Refreshing a whole season drops that season's per-week entries too, so a
+ * later week view can't be served data from before the refresh. Refreshing
+ * one week drops the whole-season entry (which now holds an older copy) as
+ * well as the "current" entry when it points at the same week.
  */
-export function refreshSeason(season: number, week?: number): Promise<void> {
-  if (week === undefined) {
-    for (let w = 1; w <= REGULAR_SEASON_WEEKS; w++) {
-      dropEntry(cacheKey(season, w));
-    }
+export function refreshSeason(
+  season: number,
+  scope: SeasonScope,
+): Promise<void> {
+  const keys = new Set<string>([
+    cacheKey(season, scope),
+    cacheKey(season, "all"),
+    cacheKey(season, "current"),
+  ]);
+  if (scope === "all") {
+    for (const key of weekKeys(season)) keys.add(key);
   } else {
-    // This week is now newer than the whole-season entry containing it.
-    dropEntry(cacheKey(season));
+    const currentWeek = getEntry(cacheKey(season, "current"))?.data.week;
+    if (currentWeek !== null && currentWeek !== undefined) {
+      keys.add(cacheKey(season, currentWeek));
+    }
   }
-  return run(season, week, true);
+
+  for (const key of keys) dropEntry(key);
+  return run(season, scope, true);
 }

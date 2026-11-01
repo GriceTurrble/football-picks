@@ -1,8 +1,7 @@
 // The user's picks: reads come from the persisted pick store
 // (lib/storage/pick-store.ts), writes go straight back to it. There is no
-// server involved, so the lock check that used to live in a Server Action
-// (lib/pick-actions.ts) happens here - against the schedule the session
-// cache has loaded.
+// server involved, so the kickoff lock check (formerly a Server Action's job)
+// happens here - against the schedule the session cache has loaded.
 //
 // A row exists only while it holds a winner pick, a score-total entry, or
 // both; clearing the last of the two deletes the row.
