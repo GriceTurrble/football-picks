@@ -3,6 +3,27 @@ export type GameStatus = "pre" | "in" | "post";
 /** Which side of a game the user has picked to win. */
 export type PickSelection = "home" | "away";
 
+/**
+ * The one piece of state this app persists between visits: a winner pick for
+ * a game, a score-total tiebreaker entry, or both. A row only exists while at
+ * least one of them does - see lib/picks.ts.
+ *
+ * `season` and `teamName` are denormalized on purpose. `season` is how the
+ * season picker is populated without a database to query, and `teamName`
+ * lets the compiled-picks view render even when the schedule hasn't been
+ * fetched yet (or ESPN is unreachable).
+ */
+export interface PickEntry {
+  gameId: string;
+  season: number;
+  team?: PickSelection;
+  /** Display name of the picked team, so a pick can render without the schedule. */
+  teamName?: string;
+  scoreTotal?: number;
+  /** ISO 8601 timestamp of the last change to this row. */
+  updatedAt: string;
+}
+
 /** An NFL team, keyed by its ESPN abbreviation (matches /public/teams/<id>.png). */
 export interface Team {
   id: string;
