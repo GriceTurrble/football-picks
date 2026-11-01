@@ -51,6 +51,7 @@ repos:
     rev: "v3.9.10"
     hooks:
       - id: prettier
+        exclude: pnpm-lock.yaml
         # types_or: [json, yaml]
 
   # Project-specific: run through pnpm/the repo's own toolchain rather than
