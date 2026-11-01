@@ -54,6 +54,15 @@ export interface ByeWeek {
   teamName: string;
 }
 
+/**
+ * One season's schedule as fetched live from ESPN. Held only for the session
+ * (see lib/season-cache.ts) - never persisted, unlike picks.
+ */
+export interface SeasonData {
+  games: Game[];
+  byes: ByeWeek[];
+}
+
 /** A price in every format ESPN's odds API expresses it in. */
 export interface OddsPrice {
   value: number;
