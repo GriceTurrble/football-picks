@@ -1,6 +1,5 @@
-// Shared timing constants used by both the server-side background refresh
-// loop (lib/game-refresh.ts) and the client-side auto-refresh control
-// (app/progress-refresh-status.tsx), so the two stay in lockstep.
+// How often the page re-checks ESPN while something is live - see
+// app/progress-refresh-status.tsx, the only thing that reads this now.
 export const REFRESH_INTERVAL_MS = 5 * 60 * 1000;
 
 // How far ahead of kickoff lib/sync-window.ts considers a game worth syncing

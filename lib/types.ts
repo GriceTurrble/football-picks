@@ -9,9 +9,9 @@ export type PickSelection = "home" | "away";
  * least one of them does - see lib/picks.ts.
  *
  * `season` and `teamName` are denormalized on purpose. `season` is how the
- * season picker is populated without a database to query, and `teamName`
- * lets the compiled-picks view render even when the schedule hasn't been
- * fetched yet (or ESPN is unreachable).
+ * season picker is populated with no schedule loaded, and `teamName` lets the
+ * compiled-picks view render even when the schedule hasn't been fetched yet
+ * (or ESPN is unreachable).
  */
 export interface PickEntry {
   gameId: string;
@@ -22,12 +22,6 @@ export interface PickEntry {
   scoreTotal?: number;
   /** ISO 8601 timestamp of the last change to this row. */
   updatedAt: string;
-}
-
-/** An NFL team, keyed by its ESPN abbreviation (matches /public/teams/<id>.png). */
-export interface Team {
-  id: string;
-  name: string;
 }
 
 export interface Game {
@@ -124,7 +118,7 @@ export interface OddsSide {
 
 /**
  * Betting odds for a game, from whichever single provider ESPN ranks
- * highest priority for that game (see lib/odds-sync.ts). `spread` is the
+ * highest priority for that game (see lib/odds.ts). `spread` is the
  * home team's line (negative when the home team is favored).
  */
 export interface Odds {

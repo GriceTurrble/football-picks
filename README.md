@@ -8,12 +8,13 @@ and see it all laid out by season and week.
 
 ## Features
 
-- **Weekly schedule**, pulled from ESPN's public scoreboard API and cached
-  in a local SQLite database (`pnpm seed` loads a season; a background
-  refresh loop keeps in-progress weeks current afterward).
+- **Weekly schedule**, pulled live from ESPN's public scoreboard API. There is
+  no database: the page fetches the week it needs (or a whole season, on
+  request) and keeps it in memory for the session.
 
 - **Pick a winner** for each game, plus an optional score-total tiebreaker
-  entry.
+  entry. Picks are saved in your browser (localStorage), which is the only
+  thing that persists between visits.
 
 - **Picks lock at kickoff**, with a manual override toggle for correcting a
   pick on an in-progress game.
@@ -79,18 +80,19 @@ Open [http://localhost:3000](http://localhost:3000) to see the running site.
 >
 > In that case, just go there: [http://localhost:3001](http://localhost:3001)
 
-### Loading a season
+### Where the data lives
 
-The database starts empty. Seed it with a season's schedule (defaults to
-the current year):
+Only your picks persist, written to this browser's localStorage as you click.
+The schedule, bye weeks, and odds are fetched from ESPN on each visit and
+kept in memory for that session, so closing the tab throws them away and the
+next visit re-checks ESPN.
 
-```bash
-pnpm seed
-```
+The page opens on the current week (one ESPN request). Pick another week from
+the week selector, or "All" for the whole season. Past seasons default to
+"All", since looking back usually means looking at everything.
 
-Once the season is seeded, the running server keeps it up to date on its own.
-Refreshes occur once every 5 minutes while games are in-progress,
-or can be triggered manually in the top-right of the page.
+While games are in progress, the page re-checks ESPN once every 5 minutes,
+or on demand from the top-right of the page.
 
 > [!NOTE]
 > The ESPN Scoreboard API may only show details of the current season.

@@ -25,7 +25,7 @@ export function ScoreTotal({
   override?: boolean;
 }) {
   const [editing, setEditing] = useState(false);
-  // Only meaningful while `editing`, seeded from `total` the moment edit mode
+  // Only meaningful while `editing`, read from `total` the moment edit mode
   // starts rather than synced continuously - a change from another tab shows
   // up for free through the plain display below whenever the user isn't
   // mid-edit here.
