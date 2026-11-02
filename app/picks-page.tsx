@@ -12,6 +12,7 @@ import { useSeasonData } from "@/lib/use-season-data";
 import { SeasonSelect } from "@/app/season-select";
 import { WeekSelect } from "@/app/week-select";
 import { FilterDropdown } from "@/app/filter-dropdown";
+import { DataDropdown } from "@/app/data-dropdown";
 import { ActiveFilters } from "@/app/active-filters";
 import {
   GameStatusFilterProvider,
@@ -169,6 +170,12 @@ export function PicksPage({
                   <GameStatusFilter />
                   <GameDayFilter />
                 </FilterDropdown>
+                <DataDropdown
+                  season={season}
+                  week={selectedWeek}
+                  games={games}
+                  picks={store.picks}
+                />
               </HideWhenTeamFilterExpanded>
               <TeamFilterInput />
               <LockOverride

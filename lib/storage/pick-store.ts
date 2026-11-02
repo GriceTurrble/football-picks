@@ -140,3 +140,67 @@ export function deletePick(gameId: string): void {
   publish();
   persist();
 }
+
+// Field-wise, so an imported row that only carries a score total doesn't
+// erase the winner already stored for that game (and vice versa). A new
+// winner takes its team name with it - keeping the old name would label the
+// pick with the wrong team.
+function mergePick(
+  existing: PickEntry | undefined,
+  incoming: PickEntry,
+): PickEntry {
+  if (!existing) return incoming;
+
+  const merged: PickEntry = {
+    ...existing,
+    season: incoming.season,
+    updatedAt: incoming.updatedAt,
+  };
+  if (incoming.team !== undefined) {
+    merged.team = incoming.team;
+    merged.teamName = incoming.teamName;
+  } else if (incoming.teamName !== undefined) {
+    merged.teamName = incoming.teamName;
+  }
+  if (incoming.scoreTotal !== undefined) {
+    merged.scoreTotal = incoming.scoreTotal;
+  }
+  return merged;
+}
+
+/**
+ * Inserts or updates many rows at once. Everything lands in a single state
+ * update and a single localStorage write, so a large import doesn't publish
+ * (or fire another tab's `storage` event) once per row.
+ */
+export function writePicks(entries: PickEntry[]): void {
+  if (entries.length === 0) return;
+
+  const picks = { ...state.picks };
+  for (const entry of entries) {
+    picks[entry.gameId] = mergePick(picks[entry.gameId], entry);
+  }
+  state = { ...state, picks };
+  publish();
+  persist();
+}
+
+/**
+ * Removes many rows at once - one state update and one write, like
+ * writePicks. Returns how many rows actually existed (and were deleted).
+ */
+export function deletePicks(gameIds: Iterable<string>): number {
+  const picks = { ...state.picks };
+  let removed = 0;
+  for (const gameId of gameIds) {
+    if (!(gameId in picks)) continue;
+    delete picks[gameId];
+    removed += 1;
+  }
+  if (removed === 0) return 0;
+
+  state = { ...state, picks };
+  publish();
+  persist();
+  return removed;
+}

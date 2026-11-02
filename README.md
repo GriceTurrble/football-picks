@@ -46,6 +46,10 @@ and see it all laid out by season and week.
   You can open Odds for a game from within this modal, as well.
   Modals stack, so closing the Odds modal will not close the Compiled modal behind it!
 
+- **Export, import, and clearing** of stored picks from the **Data** menu (the
+  floppy-disk button): save one season to a JSON file, merge a file back in, or
+  delete a week, a season, or everything after a confirmation.
+
 ## Getting Started
 
 This project uses [`just`](https://just.systems) as its command runner. If
@@ -93,6 +97,24 @@ the week selector, or "All" for the whole season. Past seasons default to
 
 While games are in progress, the page re-checks ESPN once every 5 minutes,
 or on demand from the top-right of the page.
+
+### Export, import, and clearing
+
+The **Data** button (floppy disk, next to Filters) works on the stored picks:
+
+- **Export** downloads the selected season's picks as
+  `football-picks-S2026-<timestamp>.json`: a plain array of
+  `{ gameId, season, team, teamName, scoreTotal }` rows, sorted so two exports
+  of the same picks are identical files.
+- **Import** takes a file in that shape and merges it into this browser's
+  picks. Rows for games already picked overwrite those fields, anything the
+  file doesn't mention is left alone, and malformed or duplicate rows are
+  skipped and counted rather than failing the whole file.
+- **Clear** deletes the week on screen (the default), the selected season, or
+  every pick, behind a confirmation that shows how many rows go.
+
+Picks live per browser, so exporting is also how you move them to another
+machine.
 
 > [!NOTE]
 > The ESPN Scoreboard API may only show details of the current season.
