@@ -28,6 +28,7 @@ import {
   HideWhenTeamFilterExpanded,
 } from "@/app/team-filter";
 import { ProgressRefreshStatus } from "@/app/progress-refresh-status";
+import { HelpButton } from "@/app/help-button";
 
 // The week picker offers every regular-season week whenever only a single
 // week is loaded - knowing which weeks exist would otherwise cost the second
@@ -141,12 +142,15 @@ export function PicksPage({
             {season} Season
           </p>
         </div>
-        <ProgressRefreshStatus
-          active={syncActive}
-          lastSyncedAt={fetchedAt}
-          refreshing={refreshing}
-          onRefresh={handleRefresh}
-        />
+        <div className="flex items-center gap-2">
+          <ProgressRefreshStatus
+            active={syncActive}
+            lastSyncedAt={fetchedAt}
+            refreshing={refreshing}
+            onRefresh={handleRefresh}
+          />
+          <HelpButton />
+        </div>
       </div>
 
       <TeamFilterProvider key={filterKey}>
