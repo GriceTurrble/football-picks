@@ -1,36 +1,24 @@
-import { PicksPage } from "@/app/picks-page";
+import { Suspense } from "react";
+import { PicksFromUrl } from "@/app/picks-from-url";
 
-function firstParam(value: string | string[] | undefined): string | undefined {
-  return Array.isArray(value) ? value[0] : value;
+function Loading() {
+  return (
+    <main className="mx-auto flex w-full max-w-4xl min-h-0 flex-1 flex-col gap-2 overflow-hidden pt-4 pb-24 px-2">
+      <p className="px-2 py-4 text-sm text-zinc-600 dark:text-zinc-400">
+        Loading…
+      </p>
+    </main>
+  );
 }
 
-// The only thing this server component does is read the URL. Everything else
-// - the schedule from ESPN, the picks from localStorage - is client-side; the
-// schedule is fetched live and only picks persist, so there is no server data
-// to gather here.
-export default async function Home(props: PageProps<"/">) {
-  const searchParams = await props.searchParams;
-
-  const rawSeason = Number(firstParam(searchParams.season));
-  const requestedSeason =
-    Number.isInteger(rawSeason) && rawSeason > 0 ? rawSeason : undefined;
-
-  const rawWeek = firstParam(searchParams.week);
-  const parsedWeek = Number(rawWeek);
-  const requestedWeek =
-    rawWeek === "all"
-      ? "all"
-      : Number.isInteger(parsedWeek) && parsedWeek > 0
-        ? parsedWeek
-        : undefined;
-
-  const lockOverride = firstParam(searchParams.override) === "1";
-
+// The page is a shell: picks come from localStorage and the schedule from
+// ESPN, both in the browser. It contributes the Suspense boundary
+// useSearchParams needs - without one a static export refuses to prerender
+// the page (see app/picks-from-url.tsx).
+export default function Home() {
   return (
-    <PicksPage
-      requestedSeason={requestedSeason}
-      requestedWeek={requestedWeek}
-      lockOverride={lockOverride}
-    />
+    <Suspense fallback={<Loading />}>
+      <PicksFromUrl />
+    </Suspense>
   );
 }

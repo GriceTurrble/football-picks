@@ -50,6 +50,11 @@ and see it all laid out by season and week.
   floppy-disk button): save one season to a JSON file, merge a file back in, or
   delete a week, a season, or everything after a confirmation.
 
+- **All client side, no logins needed**: I don't want your data. All API calls to ESPN
+  and every game pick you make keep data stored locally in your browser session.
+  If you want to preserve that data and move to some other device,
+  use the Export/Import feature (above).
+
 ## Getting Started
 
 This project uses [`just`](https://just.systems) as its command runner. If
@@ -59,7 +64,7 @@ You can also fallback to `pnpm` commands as listed below.
 First, bootstrap the dev environment (installs dependencies, pre-commit
 hooks, and generates Next's type stubs):
 
-```bash
+```shell
 just bootstrap
 # or, without just:
 pnpm install
@@ -67,7 +72,7 @@ pnpm install
 
 Then start the dev server:
 
-```bash
+```shell
 just up
 # alias:
 just dev
@@ -122,6 +127,22 @@ machine.
 > This is only tested (so far) on the current 2026 NFL season;
 > YMMV next year.
 
+## Development
+
+### Building the static site
+
+To build the static site and make it ready to deploy, simply run:
+
+```shell
+pnpm build
+```
+
+All content is compiled to `out/` directory (gitignored).
+Copy to any static host or CDN as you like.
+
+No server process is required: the browser calls ESPN's API from the client,
+and all other data is stored in the local browser session.
+
 ## Why?
 
 For fun. 🙂
@@ -133,10 +154,15 @@ This just helps me do that in the geekiest way I know how.
 
 ## AI contribution note
 
-I used Claude (Sonnet 5) for much of the development work here.
-I don't intend this to be used outside my local,
-so not much of a concern for code quality
-(though I still nitpick some stuff manually when I see it).
+I used Claude (Sonnet 5) for much of the initial development work.
+I further used OpenCode's free models for adjustments later on.
+
+This is a hobby project, after all.
+None of this code is that original or groundbreaking,
+no I probably don't fully understand all of it,
+and no I don't exactly care to.
 
 If you spot something sloppy and have a suggestion to improve it,
-let me know!
+let me know in an issue or PR!
+But please don't make massive AI overhaul changes:
+I will just reject them at my discretion.
