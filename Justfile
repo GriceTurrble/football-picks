@@ -38,3 +38,8 @@ up:
 
 
 alias dev := up
+
+
+# Build static pages for production
+build:
+    pnpm build

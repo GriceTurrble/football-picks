@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { MdBarChart, MdRefresh } from "react-icons/md";
 import type {
   Game,
@@ -12,7 +12,7 @@ import type {
 import { Modal } from "@/app/modal";
 import { GameListItem } from "@/app/game-list-item";
 import { ToolTipLabel } from "@/app/tooltip";
-import { refreshOdds } from "@/lib/odds-actions";
+import { refreshOdds } from "@/lib/odds";
 import { formatRefreshedAt } from "@/lib/format";
 
 function formatFlag(value: boolean | null | undefined): string {
@@ -54,7 +54,7 @@ export function OddsButton({
   lockOverride,
 }: {
   game: Game;
-  /** Undefined (not fetched into props) and null (fetched, nothing in the DB) both render as placeholders. */
+  /** Undefined (not fetched yet) and null (fetched, ESPN has no line) both render as placeholders. */
   odds?: Odds | null;
   pick?: PickSelection;
   scoreTotal?: number;
@@ -62,12 +62,15 @@ export function OddsButton({
 }) {
   const { awayTeamName, homeTeamName } = game;
   const [open, setOpen] = useState(false);
-  const [isPending, startTransition] = useTransition();
+  const [refreshing, setRefreshing] = useState(false);
 
-  function handleRefresh() {
-    startTransition(async () => {
+  async function handleRefresh() {
+    setRefreshing(true);
+    try {
       await refreshOdds(game.id);
-    });
+    } finally {
+      setRefreshing(false);
+    }
   }
 
   // A "close" line only exists once the book has stopped taking bets -
@@ -98,10 +101,10 @@ export function OddsButton({
             <button
               type="button"
               onClick={handleRefresh}
-              disabled={isPending}
+              disabled={refreshing}
               className="flex cursor-pointer items-center gap-1.5 rounded-full border border-black/8 px-3 py-1 text-sm font-medium text-zinc-700 disabled:opacity-60 dark:border-white/25 dark:text-zinc-200"
             >
-              <MdRefresh className={isPending ? "animate-spin" : undefined} />
+              <MdRefresh className={refreshing ? "animate-spin" : undefined} />
               Refresh
             </button>
             <button
@@ -124,7 +127,6 @@ export function OddsButton({
               game={game}
               pick={pick}
               scoreTotal={scoreTotal}
-              odds={odds}
               lockOverride={lockOverride}
               showOddsButton={false}
             />

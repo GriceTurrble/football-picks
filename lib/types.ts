@@ -3,10 +3,25 @@ export type GameStatus = "pre" | "in" | "post";
 /** Which side of a game the user has picked to win. */
 export type PickSelection = "home" | "away";
 
-/** An NFL team, keyed by its ESPN abbreviation (matches /public/teams/<id>.png). */
-export interface Team {
-  id: string;
-  name: string;
+/**
+ * The one piece of state this app persists between visits: a winner pick for
+ * a game, a score-total tiebreaker entry, or both. A row only exists while at
+ * least one of them does - see lib/picks.ts.
+ *
+ * `season` and `teamName` are denormalized on purpose. `season` is how the
+ * season picker is populated with no schedule loaded, and `teamName` lets the
+ * compiled-picks view render even when the schedule hasn't been fetched yet
+ * (or ESPN is unreachable).
+ */
+export interface PickEntry {
+  gameId: string;
+  season: number;
+  team?: PickSelection;
+  /** Display name of the picked team, so a pick can render without the schedule. */
+  teamName?: string;
+  scoreTotal?: number;
+  /** ISO 8601 timestamp of the last change to this row. */
+  updatedAt: string;
 }
 
 export interface Game {
@@ -31,6 +46,21 @@ export interface ByeWeek {
   week: number;
   teamId: string;
   teamName: string;
+}
+
+/**
+ * One season's schedule as fetched live from ESPN. Held only for the session
+ * (see lib/season-cache.ts) - never persisted, unlike picks.
+ */
+export interface SeasonData {
+  games: Game[];
+  byes: ByeWeek[];
+  /**
+   * The week this slice covers, or null for a whole-season payload. Set by
+   * the fetch and from the session cache, so the page can label the current
+   * week even when the URL didn't name one.
+   */
+  week: number | null;
 }
 
 /** A price in every format ESPN's odds API expresses it in. */
@@ -88,7 +118,7 @@ export interface OddsSide {
 
 /**
  * Betting odds for a game, from whichever single provider ESPN ranks
- * highest priority for that game (see lib/odds-sync.ts). `spread` is the
+ * highest priority for that game (see lib/odds.ts). `spread` is the
  * home team's line (negative when the home team is favored).
  */
 export interface Odds {

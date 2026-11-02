@@ -1,18 +1,15 @@
-// Shared between the server-side background sync loop
-// (lib/game-refresh.ts) and app/page.tsx, which uses it to decide whether
-// to let ProgressRefreshStatus auto-tick at all: whether ESPN's data for a
-// set of games is likely still changing right now.
+// Decides whether ESPN's data for a set of games is likely still changing
+// right now. app/picks-page.tsx uses anyNeedSync to gate the auto-refresh
+// tick, and the Refresh button uses needsSync to pick which games' odds to
+// re-fetch.
 import type { Game } from "@/lib/types";
 import { SYNC_WINDOW_MS } from "@/lib/constants";
 
 /**
  * True when `game`'s score, status, and odds are all worth re-checking
  * against ESPN: it's in progress, or within SYNC_WINDOW_MS of kickoff.
- * lib/game-refresh.ts checks this per game to decide what to sync each
- * tick - both a season's score/status and each eligible game's odds run off
- * this exact same check, so a game that's still "in progress" as of the
- * start of a tick gets one last odds sync in the very tick that its score
- * sync flips it to Final, and is correctly excluded from then on.
+ * Score/status refreshes cover the whole loaded week or season, while odds
+ * are fetched one game at a time, so both run off this exact same check.
  */
 export function needsSync(game: Game, now: number = Date.now()): boolean {
   if (game.status === "in") return true;

@@ -4,7 +4,8 @@ import { useRouter } from "next/navigation";
 
 interface LockOverrideProps {
   season: number;
-  week: number | undefined;
+  /** The week as the URL names it - absent keeps whatever the default is. */
+  week: number | "all" | undefined;
   enabled: boolean;
 }
 

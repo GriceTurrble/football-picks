@@ -1,28 +1,17 @@
 "use client";
 
-import { useOptimistic, useState, useTransition } from "react";
+import { useState } from "react";
 import type { Game } from "@/lib/types";
-import { updateScoreTotal } from "@/lib/pick-actions";
-
-// Mirrors the server's parsing in lib/pick-actions.ts#updateScoreTotal just
-// closely enough to predict what it'll resolve to - empty or non-positive
-// input clears the entry, otherwise it's the whole number typed. Used only
-// to drive the optimistic update below; the server action is still the
-// real validation.
-function parseTotal(value: string): number | undefined {
-  const trimmed = value.trim();
-  if (trimmed === "") return undefined;
-  const parsed = Number(trimmed);
-  return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined;
-}
+import { updateScoreTotal } from "@/lib/picks";
 
 // Tiebreaker entry: what the user thinks the combined final score of both
 // teams will be. Lives as plain text until clicked, at which point it
 // becomes an editable input; leaving focus (or pressing Enter, which just
-// blurs the input to trigger the same path) commits the value to the server
-// and drops back to display mode. Needs client state for the edit toggle,
-// unlike TeamBox's plain <form action> - there's no single "submit" moment
-// to hang a form action off of.
+// blurs the input to trigger the same path) commits the value to the pick
+// store and drops back to display mode.
+//
+// The write is synchronous, so display mode can read the `total` prop
+// directly - the page re-renders from the store as soon as it changes.
 export function ScoreTotal({
   game,
   total,
@@ -36,32 +25,26 @@ export function ScoreTotal({
   override?: boolean;
 }) {
   const [editing, setEditing] = useState(false);
-  // Only meaningful while `editing` - seeded from `optimisticTotal` the
-  // moment edit mode starts (see startEditing below), not synced
-  // continuously, so a fresh `total` from the server (e.g. another tab's
-  // edit rolling in via revalidatePath) is picked up for free by the plain
-  // display below whenever the user isn't mid-edit here.
+  // Only meaningful while `editing`, read from `total` the moment edit mode
+  // starts rather than synced continuously - a change from another tab shows
+  // up for free through the plain display below whenever the user isn't
+  // mid-edit here.
   const [draft, setDraft] = useState("");
-  // Shows the just-committed value immediately instead of the stale `total`
-  // prop while the Server Action round-trips (parse + write + the
-  // revalidatePath that brings a fresh `total` back down) - without this,
-  // display mode flashes the old number for a beat right after committing.
-  // Reconciles back to the real `total` on its own once that finishes,
-  // same as any other useOptimistic value.
-  const [optimisticTotal, setOptimisticTotal] = useOptimistic(total);
-  const [, startTransition] = useTransition();
 
   function startEditing() {
-    setDraft(optimisticTotal ? String(optimisticTotal) : "");
+    setDraft(total ? String(total) : "");
     setEditing(true);
   }
 
   function commit(value: string) {
     setEditing(false);
-    startTransition(async () => {
-      setOptimisticTotal(parseTotal(value));
-      await updateScoreTotal(game.id, value, override);
-    });
+    try {
+      updateScoreTotal(game, value, override);
+    } catch (error) {
+      // The input only accepts digits, so this is a guard rail rather than an
+      // expected path.
+      console.error("[score-total] failed to save:", error);
+    }
   }
 
   // Dashed border marks the field as empty and clickable - it's a
@@ -75,8 +58,8 @@ export function ScoreTotal({
   const hasFinalScore =
     game.status !== "pre" && game.homeScore !== null && game.awayScore !== null;
   const diff =
-    hasFinalScore && optimisticTotal
-      ? Math.abs(optimisticTotal - (game.homeScore! + game.awayScore!))
+    hasFinalScore && total
+      ? Math.abs(total - (game.homeScore! + game.awayScore!))
       : null;
 
   return (
@@ -111,19 +94,17 @@ export function ScoreTotal({
           disabled={disabled}
           onClick={startEditing}
           aria-label={
-            optimisticTotal
-              ? `Edit score total entry of ${optimisticTotal}`
-              : "Enter score total"
+            total ? `Edit score total entry of ${total}` : "Enter score total"
           }
           className={`w-full rounded-md px-1 text-center font-mono text-lg font-bold transition-colors ${
-            optimisticTotal ? "" : emptyBorderClass
+            total ? "" : emptyBorderClass
           } ${
             disabled
               ? "cursor-not-allowed"
               : "cursor-pointer hover:bg-black/5 dark:hover:bg-white/5"
           }`}
         >
-          {optimisticTotal || " "}
+          {total || " "}
         </button>
       )}
       {diff !== null && (
