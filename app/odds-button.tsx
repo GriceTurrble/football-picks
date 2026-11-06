@@ -15,10 +15,6 @@ import { ToolTipLabel } from "@/app/tooltip";
 import { refreshOdds } from "@/lib/odds";
 import { formatRefreshedAt } from "@/lib/format";
 
-function formatFlag(value: boolean | null | undefined): string {
-  return value === null || value === undefined ? "—" : value ? "Yes" : "No";
-}
-
 // A side's spread line at one point in time, e.g. "-3 (-120)" - the point
 // spread itself, plus the price to bet it, when both are available.
 function sideLine(snapshot?: OddsSideSnapshot): string {

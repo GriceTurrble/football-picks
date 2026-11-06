@@ -18,8 +18,6 @@ export interface UseSeasonDataResult {
   error: string | null;
   /** When the data was fetched from ESPN, or null if nothing is loaded yet. */
   fetchedAt: number | null;
-  /** True while there is nothing to show and no error yet. */
-  loading: boolean;
   /** True while a manual refresh is in flight, even if old data is showing. */
   refreshing: boolean;
   /** Bypasses the session cache and re-fetches from ESPN. */
@@ -62,7 +60,6 @@ export function useSeasonData(
     data: status.data,
     error: status.error,
     fetchedAt: status.fetchedAt,
-    loading: status.data === null && status.error === null,
     refreshing,
     refresh,
   };

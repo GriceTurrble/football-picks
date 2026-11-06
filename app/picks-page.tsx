@@ -79,12 +79,15 @@ export function PicksPage({
           ? "current"
           : "all";
 
-  const { data, error, fetchedAt, loading, refreshing, refresh } =
-    useSeasonData(season, scope, store.ready);
+  const { data, error, fetchedAt, refreshing, refresh } = useSeasonData(
+    season,
+    scope,
+    store.ready,
+  );
 
   // The cache already narrowed these to the selected week (or left them whole
   // for "all"), so no further filtering is needed here.
-  const games = data?.games ?? [];
+  const games = useMemo(() => data?.games ?? [], [data]);
   const byes = data?.byes ?? [];
 
   const gameIds = useMemo(() => games.map((game) => game.id), [games]);
