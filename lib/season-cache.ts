@@ -134,11 +134,6 @@ function isFresh(entry: CacheEntry): boolean {
   return Date.now() - entry.fetchedAt < CACHE_TTL_MS;
 }
 
-function getFreshEntry(key: string): CacheEntry | null {
-  const entry = getEntry(key);
-  return entry && isFresh(entry) ? entry : null;
-}
-
 /** A whole-season entry can answer for any week it contains. */
 function coversWeek(data: SeasonData, week: number): boolean {
   return (
