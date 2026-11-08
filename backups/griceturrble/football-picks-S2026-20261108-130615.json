@@ -1,0 +1,827 @@
+[
+  {
+    "gameId": "401872656",
+    "season": 2026,
+    "team": "home",
+    "teamName": "Seattle Seahawks"
+  },
+  {
+    "gameId": "401872657",
+    "season": 2026,
+    "team": "away",
+    "teamName": "San Francisco 49ers"
+  },
+  {
+    "gameId": "401872658",
+    "season": 2026,
+    "team": "home",
+    "teamName": "Pittsburgh Steelers"
+  },
+  {
+    "gameId": "401872659",
+    "season": 2026,
+    "team": "away",
+    "teamName": "Baltimore Ravens"
+  },
+  {
+    "gameId": "401872660",
+    "season": 2026,
+    "team": "away",
+    "teamName": "Buffalo Bills"
+  },
+  {
+    "gameId": "401872661",
+    "season": 2026,
+    "team": "away",
+    "teamName": "Chicago Bears"
+  },
+  {
+    "gameId": "401872922",
+    "season": 2026,
+    "team": "home",
+    "teamName": "Jacksonville Jaguars"
+  },
+  {
+    "gameId": "401872923",
+    "season": 2026,
+    "team": "home",
+    "teamName": "Detroit Lions"
+  },
+  {
+    "gameId": "401872924",
+    "season": 2026,
+    "team": "home",
+    "teamName": "Tennessee Titans"
+  },
+  {
+    "gameId": "401872925",
+    "season": 2026,
+    "team": "home",
+    "teamName": "Cincinnati Bengals"
+  },
+  {
+    "gameId": "401872926",
+    "season": 2026,
+    "team": "home",
+    "teamName": "Los Angeles Chargers"
+  },
+  {
+    "gameId": "401872927",
+    "season": 2026,
+    "team": "home",
+    "teamName": "Minnesota Vikings"
+  },
+  {
+    "gameId": "401872928",
+    "season": 2026,
+    "team": "home",
+    "teamName": "Las Vegas Raiders"
+  },
+  {
+    "gameId": "401872929",
+    "season": 2026,
+    "team": "home",
+    "teamName": "Philadelphia Eagles"
+  },
+  {
+    "gameId": "401872930",
+    "season": 2026,
+    "team": "away",
+    "teamName": "Dallas Cowboys"
+  },
+  {
+    "gameId": "401872931",
+    "season": 2026,
+    "team": "home",
+    "teamName": "Kansas City Chiefs",
+    "scoreTotal": 44
+  },
+  {
+    "gameId": "401872932",
+    "season": 2026,
+    "team": "away",
+    "teamName": "Detroit Lions"
+  },
+  {
+    "gameId": "401872933",
+    "season": 2026,
+    "team": "away",
+    "teamName": "Carolina Panthers"
+  },
+  {
+    "gameId": "401872934",
+    "season": 2026,
+    "team": "home",
+    "teamName": "Houston Texans"
+  },
+  {
+    "gameId": "401872935",
+    "season": 2026,
+    "team": "home",
+    "teamName": "Tampa Bay Buccaneers"
+  },
+  {
+    "gameId": "401872936",
+    "season": 2026,
+    "team": "away",
+    "teamName": "Green Bay Packers"
+  },
+  {
+    "gameId": "401872937",
+    "season": 2026,
+    "team": "home",
+    "teamName": "Chicago Bears"
+  },
+  {
+    "gameId": "401872938",
+    "season": 2026,
+    "team": "home",
+    "teamName": "Baltimore Ravens"
+  },
+  {
+    "gameId": "401872939",
+    "season": 2026,
+    "team": "away",
+    "teamName": "Philadelphia Eagles"
+  },
+  {
+    "gameId": "401872940",
+    "season": 2026,
+    "team": "home",
+    "teamName": "Denver Broncos"
+  },
+  {
+    "gameId": "401872941",
+    "season": 2026,
+    "team": "home",
+    "teamName": "Los Angeles Chargers"
+  },
+  {
+    "gameId": "401872942",
+    "season": 2026,
+    "team": "home",
+    "teamName": "San Francisco 49ers"
+  },
+  {
+    "gameId": "401872943",
+    "season": 2026,
+    "team": "away",
+    "teamName": "Seattle Seahawks"
+  },
+  {
+    "gameId": "401872944",
+    "season": 2026,
+    "team": "home",
+    "teamName": "Dallas Cowboys"
+  },
+  {
+    "gameId": "401872945",
+    "season": 2026,
+    "team": "home",
+    "teamName": "Kansas City Chiefs"
+  },
+  {
+    "gameId": "401872946",
+    "season": 2026,
+    "team": "home",
+    "teamName": "New England Patriots"
+  },
+  {
+    "gameId": "401872947",
+    "season": 2026,
+    "team": "home",
+    "teamName": "Los Angeles Rams",
+    "scoreTotal": 47
+  },
+  {
+    "gameId": "401872948",
+    "season": 2026,
+    "team": "home",
+    "teamName": "Green Bay Packers"
+  },
+  {
+    "gameId": "401872949",
+    "season": 2026,
+    "team": "away",
+    "teamName": "Carolina Panthers"
+  },
+  {
+    "gameId": "401872950",
+    "season": 2026,
+    "team": "away",
+    "teamName": "Cincinnati Bengals"
+  },
+  {
+    "gameId": "401872951",
+    "season": 2026,
+    "team": "away",
+    "teamName": "Houston Texans"
+  },
+  {
+    "gameId": "401872952",
+    "season": 2026,
+    "team": "away",
+    "teamName": "Kansas City Chiefs"
+  },
+  {
+    "gameId": "401872953",
+    "season": 2026,
+    "team": "home",
+    "teamName": "Buffalo Bills"
+  },
+  {
+    "gameId": "401872954",
+    "season": 2026,
+    "team": "home",
+    "teamName": "Detroit Lions"
+  },
+  {
+    "gameId": "401872955",
+    "season": 2026,
+    "team": "away",
+    "teamName": "Seattle Seahawks"
+  },
+  {
+    "gameId": "401872956",
+    "season": 2026,
+    "team": "home",
+    "teamName": "New York Giants"
+  },
+  {
+    "gameId": "401872957",
+    "season": 2026,
+    "team": "home",
+    "teamName": "Jacksonville Jaguars"
+  },
+  {
+    "gameId": "401872958",
+    "season": 2026,
+    "team": "home",
+    "teamName": "San Francisco 49ers"
+  },
+  {
+    "gameId": "401872959",
+    "season": 2026,
+    "team": "away",
+    "teamName": "Minnesota Vikings"
+  },
+  {
+    "gameId": "401872960",
+    "season": 2026,
+    "team": "away",
+    "teamName": "Baltimore Ravens"
+  },
+  {
+    "gameId": "401872961",
+    "season": 2026,
+    "team": "home",
+    "teamName": "New Orleans Saints"
+  },
+  {
+    "gameId": "401872962",
+    "season": 2026,
+    "team": "away",
+    "teamName": "Los Angeles Rams"
+  },
+  {
+    "gameId": "401872963",
+    "season": 2026,
+    "team": "home",
+    "teamName": "Chicago Bears",
+    "scoreTotal": 47
+  },
+  {
+    "gameId": "401872964",
+    "season": 2026,
+    "team": "away",
+    "teamName": "Pittsburgh Steelers"
+  },
+  {
+    "gameId": "401872965",
+    "season": 2026,
+    "team": "away",
+    "teamName": "Indianapolis Colts"
+  },
+  {
+    "gameId": "401872966",
+    "season": 2026,
+    "team": "away",
+    "teamName": "Arizona Cardinals"
+  },
+  {
+    "gameId": "401872967",
+    "season": 2026,
+    "team": "home",
+    "teamName": "Houston Texans"
+  },
+  {
+    "gameId": "401872968",
+    "season": 2026,
+    "team": "away",
+    "teamName": "Green Bay Packers"
+  },
+  {
+    "gameId": "401872969",
+    "season": 2026,
+    "team": "home",
+    "teamName": "Cincinnati Bengals"
+  },
+  {
+    "gameId": "401872970",
+    "season": 2026,
+    "team": "away",
+    "teamName": "Los Angeles Rams"
+  },
+  {
+    "gameId": "401872971",
+    "season": 2026,
+    "team": "home",
+    "teamName": "Buffalo Bills"
+  },
+  {
+    "gameId": "401872972",
+    "season": 2026,
+    "team": "home",
+    "teamName": "Chicago Bears"
+  },
+  {
+    "gameId": "401872973",
+    "season": 2026,
+    "team": "home",
+    "teamName": "Baltimore Ravens"
+  },
+  {
+    "gameId": "401872974",
+    "season": 2026,
+    "team": "home",
+    "teamName": "Minnesota Vikings"
+  },
+  {
+    "gameId": "401872975",
+    "season": 2026,
+    "team": "home",
+    "teamName": "San Francisco 49ers"
+  },
+  {
+    "gameId": "401872976",
+    "season": 2026,
+    "team": "away",
+    "teamName": "Kansas City Chiefs"
+  },
+  {
+    "gameId": "401872977",
+    "season": 2026,
+    "team": "home",
+    "teamName": "Seattle Seahawks"
+  },
+  {
+    "gameId": "401872978",
+    "season": 2026,
+    "team": "away",
+    "teamName": "Detroit Lions"
+  },
+  {
+    "gameId": "401872979",
+    "season": 2026,
+    "team": "home",
+    "teamName": "New Orleans Saints",
+    "scoreTotal": 46
+  },
+  {
+    "gameId": "401872980",
+    "season": 2026,
+    "team": "home",
+    "teamName": "Dallas Cowboys"
+  },
+  {
+    "gameId": "401872981",
+    "season": 2026,
+    "team": "home",
+    "teamName": "Jacksonville Jaguars"
+  },
+  {
+    "gameId": "401872982",
+    "season": 2026,
+    "team": "away",
+    "teamName": "Cincinnati Bengals"
+  },
+  {
+    "gameId": "401872983",
+    "season": 2026,
+    "team": "away",
+    "teamName": "Cleveland Browns"
+  },
+  {
+    "gameId": "401872984",
+    "season": 2026,
+    "team": "away",
+    "teamName": "Houston Texans"
+  },
+  {
+    "gameId": "401872985",
+    "season": 2026,
+    "team": "home",
+    "teamName": "Pittsburgh Steelers"
+  },
+  {
+    "gameId": "401872986",
+    "season": 2026,
+    "team": "home",
+    "teamName": "New England Patriots"
+  },
+  {
+    "gameId": "401872987",
+    "season": 2026,
+    "team": "away",
+    "teamName": "Minnesota Vikings"
+  },
+  {
+    "gameId": "401872988",
+    "season": 2026,
+    "team": "home",
+    "teamName": "Washington Commanders"
+  },
+  {
+    "gameId": "401872989",
+    "season": 2026,
+    "team": "away",
+    "teamName": "Denver Broncos"
+  },
+  {
+    "gameId": "401872990",
+    "season": 2026,
+    "team": "away",
+    "teamName": "Chicago Bears"
+  },
+  {
+    "gameId": "401872991",
+    "season": 2026,
+    "team": "away",
+    "teamName": "Detroit Lions"
+  },
+  {
+    "gameId": "401872992",
+    "season": 2026,
+    "team": "home",
+    "teamName": "Seattle Seahawks"
+  },
+  {
+    "gameId": "401872993",
+    "season": 2026,
+    "team": "home",
+    "teamName": "Atlanta Falcons"
+  },
+  {
+    "gameId": "401872994",
+    "season": 2026,
+    "team": "home",
+    "teamName": "Los Angeles Rams",
+    "scoreTotal": 54
+  },
+  {
+    "gameId": "401872995",
+    "season": 2026,
+    "team": "away",
+    "teamName": "Seattle Seahawks"
+  },
+  {
+    "gameId": "401872996",
+    "season": 2026,
+    "team": "home",
+    "teamName": "Jacksonville Jaguars"
+  },
+  {
+    "gameId": "401872997",
+    "season": 2026,
+    "team": "away",
+    "teamName": "Baltimore Ravens"
+  },
+  {
+    "gameId": "401872998",
+    "season": 2026,
+    "team": "away",
+    "teamName": "Carolina Panthers"
+  },
+  {
+    "gameId": "401872999",
+    "season": 2026,
+    "team": "away",
+    "teamName": "Chicago Bears"
+  },
+  {
+    "gameId": "401873000",
+    "season": 2026,
+    "team": "away",
+    "teamName": "New Orleans Saints"
+  },
+  {
+    "gameId": "401873001",
+    "season": 2026,
+    "team": "home",
+    "teamName": "New England Patriots"
+  },
+  {
+    "gameId": "401873002",
+    "season": 2026,
+    "team": "away",
+    "teamName": "Pittsburgh Steelers"
+  },
+  {
+    "gameId": "401873003",
+    "season": 2026,
+    "team": "home",
+    "teamName": "Indianapolis Colts"
+  },
+  {
+    "gameId": "401873004",
+    "season": 2026,
+    "team": "home",
+    "teamName": "Los Angeles Rams"
+  },
+  {
+    "gameId": "401873005",
+    "season": 2026,
+    "team": "away",
+    "teamName": "Buffalo Bills"
+  },
+  {
+    "gameId": "401873006",
+    "season": 2026,
+    "team": "home",
+    "teamName": "Kansas City Chiefs"
+  },
+  {
+    "gameId": "401873007",
+    "season": 2026,
+    "team": "home",
+    "teamName": "Green Bay Packers"
+  },
+  {
+    "gameId": "401873008",
+    "season": 2026,
+    "team": "home",
+    "teamName": "San Francisco 49ers",
+    "scoreTotal": 51
+  },
+  {
+    "gameId": "401873009",
+    "season": 2026,
+    "team": "home",
+    "teamName": "Philadelphia Eagles",
+    "scoreTotal": 48
+  },
+  {
+    "gameId": "401873010",
+    "season": 2026,
+    "team": "home",
+    "teamName": "Chicago Bears"
+  },
+  {
+    "gameId": "401873011",
+    "season": 2026,
+    "team": "away",
+    "teamName": "Pittsburgh Steelers"
+  },
+  {
+    "gameId": "401873012",
+    "season": 2026,
+    "team": "away",
+    "teamName": "Cincinnati Bengals"
+  },
+  {
+    "gameId": "401873013",
+    "season": 2026,
+    "team": "away",
+    "teamName": "Cleveland Browns"
+  },
+  {
+    "gameId": "401873014",
+    "season": 2026,
+    "team": "home",
+    "teamName": "Minnesota Vikings"
+  },
+  {
+    "gameId": "401873015",
+    "season": 2026,
+    "team": "home",
+    "teamName": "New York Jets"
+  },
+  {
+    "gameId": "401873016",
+    "season": 2026,
+    "team": "home",
+    "teamName": "Houston Texans"
+  },
+  {
+    "gameId": "401873017",
+    "season": 2026,
+    "team": "away",
+    "teamName": "San Francisco 49ers"
+  },
+  {
+    "gameId": "401873018",
+    "season": 2026,
+    "team": "home",
+    "teamName": "Carolina Panthers"
+  },
+  {
+    "gameId": "401873019",
+    "season": 2026,
+    "team": "away",
+    "teamName": "Denver Broncos"
+  },
+  {
+    "gameId": "401873020",
+    "season": 2026,
+    "team": "home",
+    "teamName": "Detroit Lions"
+  },
+  {
+    "gameId": "401873021",
+    "season": 2026,
+    "team": "away",
+    "teamName": "Los Angeles Rams"
+  },
+  {
+    "gameId": "401873022",
+    "season": 2026,
+    "team": "home",
+    "teamName": "Seattle Seahawks"
+  },
+  {
+    "gameId": "401873023",
+    "season": 2026,
+    "team": "home",
+    "teamName": "Green Bay Packers"
+  },
+  {
+    "gameId": "401873024",
+    "season": 2026,
+    "team": "home",
+    "teamName": "Dallas Cowboys"
+  },
+  {
+    "gameId": "401873025",
+    "season": 2026,
+    "team": "home",
+    "teamName": "Tampa Bay Buccaneers"
+  },
+  {
+    "gameId": "401873026",
+    "season": 2026,
+    "team": "home",
+    "teamName": "Buffalo Bills"
+  },
+  {
+    "gameId": "401873027",
+    "season": 2026,
+    "team": "home",
+    "teamName": "Pittsburgh Steelers"
+  },
+  {
+    "gameId": "401873028",
+    "season": 2026,
+    "team": "home",
+    "teamName": "Jacksonville Jaguars"
+  },
+  {
+    "gameId": "401873029",
+    "season": 2026,
+    "team": "home",
+    "teamName": "New York Jets"
+  },
+  {
+    "gameId": "401873030",
+    "season": 2026,
+    "team": "home",
+    "teamName": "Detroit Lions"
+  },
+  {
+    "gameId": "401873031",
+    "season": 2026,
+    "team": "home",
+    "teamName": "Cincinnati Bengals"
+  },
+  {
+    "gameId": "401873032",
+    "season": 2026,
+    "team": "home",
+    "teamName": "Los Angeles Rams"
+  },
+  {
+    "gameId": "401873033",
+    "season": 2026,
+    "team": "away",
+    "teamName": "Kansas City Chiefs"
+  },
+  {
+    "gameId": "401873034",
+    "season": 2026,
+    "team": "away",
+    "teamName": "New England Patriots"
+  },
+  {
+    "gameId": "401873035",
+    "season": 2026,
+    "team": "home",
+    "teamName": "Washington Commanders"
+  },
+  {
+    "gameId": "401873036",
+    "season": 2026,
+    "team": "home",
+    "teamName": "Seattle Seahawks",
+    "scoreTotal": 48
+  },
+  {
+    "gameId": "401873037",
+    "season": 2026,
+    "team": "away",
+    "teamName": "Jacksonville Jaguars"
+  },
+  {
+    "gameId": "401873038",
+    "season": 2026,
+    "team": "away",
+    "teamName": "Cincinnati Bengals"
+  },
+  {
+    "gameId": "401873039",
+    "season": 2026,
+    "team": "home",
+    "teamName": "New Orleans Saints"
+  },
+  {
+    "gameId": "401873040",
+    "season": 2026,
+    "team": "away",
+    "teamName": "Dallas Cowboys"
+  },
+  {
+    "gameId": "401873041",
+    "season": 2026,
+    "team": "away",
+    "teamName": "Denver Broncos"
+  },
+  {
+    "gameId": "401873042",
+    "season": 2026,
+    "team": "away",
+    "teamName": "Detroit Lions"
+  },
+  {
+    "gameId": "401873043",
+    "season": 2026,
+    "team": "away",
+    "teamName": "Los Angeles Rams"
+  },
+  {
+    "gameId": "401873044",
+    "season": 2026,
+    "team": "away",
+    "teamName": "New York Giants"
+  },
+  {
+    "gameId": "401873045",
+    "season": 2026,
+    "team": "home",
+    "teamName": "Kansas City Chiefs"
+  },
+  {
+    "gameId": "401873046",
+    "season": 2026,
+    "team": "away",
+    "teamName": "Houston Texans"
+  },
+  {
+    "gameId": "401873047",
+    "season": 2026,
+    "team": "home",
+    "teamName": "San Francisco 49ers"
+  },
+  {
+    "gameId": "401873048",
+    "season": 2026,
+    "team": "home",
+    "teamName": "Seattle Seahawks"
+  },
+  {
+    "gameId": "401873049",
+    "season": 2026,
+    "team": "home",
+    "teamName": "New England Patriots"
+  },
+  {
+    "gameId": "401873050",
+    "season": 2026,
+    "team": "home",
+    "teamName": "Chicago Bears"
+  },
+  {
+    "gameId": "401873051",
+    "season": 2026,
+    "team": "away",
+    "teamName": "Buffalo Bills",
+    "scoreTotal": 44
+  }
+]
